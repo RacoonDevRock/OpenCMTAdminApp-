@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">OpenCTMAdminApp</string>
+
+    <!-- Home String -->
+    <string name="home_description">Administrador de informes de Incidentes</string>
+    <string name="home_button">Comenzar</string>
+
+    <!-- Login String -->
+    <string name="login_description">Inicio de Sesión</string>
+    <string name="login_email_field">Email</string>
+    <string name="login_pass_field">Contraseña</string>
+    <string name="login_button">Entrar</string>
+
+    <!-- Filter String -->
+    <string name="message_filter">Mostrar Filtros</string>
+    <string name="title_filter">Filtros</string>
+    <string name="state_field_filter">Estado</string>
+    <string name="time_field_filter">Tiempo</string>
+    <string name="filter_button">Buscar</string>
+
+    <!-- Detail String -->
+    <string name="applicant_report">Solicitante</string>
+    <string name="id_report">Identificación</string>
+    <string name="address_report">Domicilio</string>
+    <string name="email_report">Correo Electrónico</string>
+    <string name="phone_report">Teléfono/Celular</string>
+    <string name="observ_report">Observaciones</string>
+    <string name="n_incident_report">N° Incidente</string>
+
+    <!-- Approve Report -->
+    <string name="approve_report_description">¿Fue atendida tu solicitud?</string>
+    <string name="approve_report_button">Sí</string>
+
+    <!-- Detail Report -->
+    <string name="incident_type_field_filter">Tipo de Incidente</string>
+    <string name="zone_field_filter">Zona</string>
+    <string name="sector_field_filter">Sector</string>
+    <string name="intervention_type_filter">Tipo de Intervención</string>
+    <string name="intervention_result_filter">Resultado de la Intervención</string>
+    <string name="observers_filter">Observaciones</string>
+    <string name="detail_filter">Detalle</string>
+    <string name="personal_filter">Personal</string>
+    <string name="cargo_filter">Cargo</string>
+    <string name="vehicle_filter">Vehículos</string>
+    <string name="plate_filter">Placa</string>
+
+    <!-- No Internet -->
+    <string name="message_no_internet">No tienes conexión a Internet.</string>
+    <string name="button_no_internet">Reintentar</string>
+</resources>
