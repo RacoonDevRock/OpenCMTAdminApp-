@@ -72,7 +72,7 @@ fun ResearchAdminScreen(modifier: Modifier, navigationController: NavHostControl
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(1) {
-                    IncidentBox({
+                    ReportBox({
                         navigationController.navigate(Routes.DetailReportAdminScreen.route)
                     }, "1999", "03/08/2020 21:21", "Consumo de licor en la vía pública")
                 }
@@ -179,7 +179,7 @@ fun HeaderSection() {
 }
 
 @Composable
-fun IncidentBox(
+fun ReportBox(
     navigate: () -> Unit,
     numberIncident: String,
     dateIncident: String,
@@ -208,6 +208,7 @@ fun IncidentBox(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 14.sp,
                     color = Color.Black,
+                    lineHeight = 20.sp
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
@@ -215,13 +216,16 @@ fun IncidentBox(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 14.sp,
                     color = Color.Black,
+                    lineHeight = 20.sp
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = motiveIncident,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 14.sp,
                 color = Color.Black,
+                lineHeight = 20.sp,
                 modifier = Modifier
                     .fillMaxWidth()
             )

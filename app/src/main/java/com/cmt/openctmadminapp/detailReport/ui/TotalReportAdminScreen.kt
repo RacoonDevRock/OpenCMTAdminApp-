@@ -5,17 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,10 +41,6 @@ fun TotalReportAdminScreen(modifier: Modifier = Modifier) {
 
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
                 DetailReport()
-            }
-
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.BottomEnd){
-                Icon(Icons.Default.ArrowBackIosNew, contentDescription = "back", tint = Color.White, modifier = Modifier.padding(25.dp))
             }
         }
     }
