@@ -1,4 +1,4 @@
-package com.cmt.openctmadminapp.ui.loading
+package com.cmt.openctmadminapp.core.ui.shared.loading
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

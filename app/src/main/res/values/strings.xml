@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OpenCTMAdminApp</string>
+    <string name="app_name">OpenAdmin</string>
 
     <!-- Home String -->
     <string name="home_description">Administrador de informes de Incidentes</string>
@@ -12,7 +12,7 @@
     <string name="login_button">Entrar</string>
 
     <!-- Filter String -->
-    <string name="message_filter">Mostrar Filtros</string>
+    <string name="message_filter">Filtros</string>
     <string name="title_filter">Filtros</string>
     <string name="state_field_filter">Estado</string>
     <string name="time_field_filter">Tiempo</string>
@@ -24,7 +24,7 @@
     <string name="address_report">Domicilio</string>
     <string name="email_report">Correo Electrónico</string>
     <string name="phone_report">Teléfono/Celular</string>
-    <string name="observ_report">Observaciones</string>
+    <string name="observ_report">Motivo</string>
     <string name="n_incident_report">N° Incidente</string>
 
     <!-- Approve Report -->
@@ -37,7 +37,6 @@
     <string name="sector_field_filter">Sector</string>
     <string name="intervention_type_filter">Tipo de Intervención</string>
     <string name="intervention_result_filter">Resultado de la Intervención</string>
-    <string name="observers_filter">Observaciones</string>
     <string name="detail_filter">Detalle</string>
     <string name="personal_filter">Personal</string>
     <string name="cargo_filter">Cargo</string>

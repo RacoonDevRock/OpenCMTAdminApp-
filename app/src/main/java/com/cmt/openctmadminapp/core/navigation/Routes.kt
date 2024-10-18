@@ -1,4 +1,4 @@
-package com.cmt.openctmadminapp.model
+package com.cmt.openctmadminapp.core.navigation
 
 sealed class Routes(val route: String) {
     object HomeAdminScreen : Routes("homeAdminScreen")

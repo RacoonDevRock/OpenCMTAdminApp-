@@ -11,7 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import com.cmt.openctmadminapp.navigation.AppNavGraph
+import com.cmt.openctmadminapp.core.navigation.AppNavGraph
+import com.cmt.openctmadminapp.core.network.CheckInternetScreen
 import com.cmt.openctmadminapp.ui.theme.OpenCTMAdminAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,9 +21,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             OpenCTMAdminAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val navigationController = rememberNavController()
-                    AppNavGraph(Modifier.padding(innerPadding), navigationController)
+                CheckInternetScreen {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        val navigationController = rememberNavController()
+                        AppNavGraph(Modifier.padding(innerPadding), navigationController)
+                    }
                 }
             }
 

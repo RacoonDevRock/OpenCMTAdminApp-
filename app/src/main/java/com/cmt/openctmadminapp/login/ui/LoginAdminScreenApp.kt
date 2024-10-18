@@ -1,4 +1,4 @@
-package com.cmt.openctmadminapp.ui.login
+package com.cmt.openctmadminapp.login.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,9 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
-import com.cmt.openctmadminapp.model.Routes
-import com.cmt.openctmadminapp.ui.buttonNavigate.MyButton
-import com.cmt.openctmadminapp.ui.home.LogoSection
+import com.cmt.openctmadminapp.core.navigation.Routes
+import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
+import com.cmt.openctmadminapp.core.ui.home.LogoSection
 
 //@Preview(showSystemUi = true)
 @Composable
@@ -62,6 +63,9 @@ fun LoginAdminScreen(modifier: Modifier, navigationController: NavHostController
 
 @Composable
 fun RegisterSection(modifier: Modifier, navigate: () -> Unit) {
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -83,9 +87,13 @@ fun RegisterSection(modifier: Modifier, navigate: () -> Unit) {
                 modifier = Modifier.padding(horizontal = 50.dp)
             )
             Spacer(modifier = Modifier.height(25.dp))
-            EmailField(text = stringResource(id = R.string.login_email_field))
+            EmailField(label = stringResource(id = R.string.login_email_field), email) {
+                email = it
+            }
             Spacer(modifier = Modifier.height(25.dp))
-            PasswordField(text = stringResource(id = R.string.login_pass_field))
+            PasswordField(label = stringResource(id = R.string.login_pass_field), password) {
+                password = it
+            }
             Spacer(modifier = Modifier.height(25.dp))
             MyButton(
                 navigate,
@@ -97,18 +105,22 @@ fun RegisterSection(modifier: Modifier, navigate: () -> Unit) {
 }
 
 @Composable
-fun EmailField(text: String) {
+fun EmailField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+) {
     TextField(
-        value = "",
-        onValueChange = { },
+        value = value,
+        onValueChange = onValueChange,
         modifier = Modifier.width(310.dp),
         placeholder = {
             Text(
-                text = text,
+                text = label,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.padding(start = 4.dp),
                 fontSize = 14.sp,
-                color = Color(0xFF848688)
+                color = MaterialTheme.colorScheme.tertiary
             )
         },
         maxLines = 1,
@@ -117,31 +129,36 @@ fun EmailField(text: String) {
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
-            unfocusedTextColor = Color(0XFF848688),
-            unfocusedTrailingIconColor = Color(0XFF848688),
-            focusedTrailingIconColor = Color(0XFF848688),
+            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.tertiary,
+            focusedTextColor = MaterialTheme.colorScheme.primary,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
         ),
         shape = RoundedCornerShape(25.dp)
     )
 }
 
 @Composable
-fun PasswordField(text: String) {
+fun PasswordField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+) {
     var passwordStateVisibility by remember { mutableStateOf(false) }
 
     TextField(
-        value = "",
-        onValueChange = { },
+        value = value,
+        onValueChange = onValueChange,
         modifier = Modifier.width(310.dp),
         placeholder = {
             Text(
-                text = text,
+                text = label,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.padding(start = 4.dp),
                 fontSize = 14.sp,
-                color = Color(0xFF848688)
+                color = MaterialTheme.colorScheme.tertiary
             )
         },
         maxLines = 1,
@@ -150,11 +167,12 @@ fun PasswordField(text: String) {
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
-            unfocusedTextColor = Color(0XFF848688),
-            unfocusedTrailingIconColor = Color(0XFF848688),
-            focusedTrailingIconColor = Color(0XFF848688),
+            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.tertiary,
+            focusedTextColor = MaterialTheme.colorScheme.primary,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
         ),
         trailingIcon = {
             val imagen = if (passwordStateVisibility) {

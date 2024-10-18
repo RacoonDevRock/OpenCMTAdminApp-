@@ -1,4 +1,4 @@
-package com.cmt.openctmadminapp.ui.detailReport
+package com.cmt.openctmadminapp.detailReport.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,17 +32,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
-import com.cmt.openctmadminapp.model.Routes
-import com.cmt.openctmadminapp.ui.buttonNavigate.MyButton
-import com.cmt.openctmadminapp.ui.research.HeaderSection
+import com.cmt.openctmadminapp.core.navigation.Routes
+import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
+import com.cmt.openctmadminapp.research.ui.HeaderSection
 
-//@Preview(showSystemUi = true)
 @Composable
 fun DetailReportAdminScreen(modifier: Modifier, navigationController: NavHostController) {
     Box(
         modifier
             .fillMaxSize()
-            .background(Color(0xFFE5E5E5))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()

@@ -1,10 +1,11 @@
-package com.cmt.openctmadminapp.ui.detailReport
+package com.cmt.openctmadminapp.detailReport.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,9 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -23,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cmt.openctmadminapp.R
-import com.cmt.openctmadminapp.ui.research.HeaderSection
+import com.cmt.openctmadminapp.research.ui.HeaderSection
 
 @Composable
 fun TotalReportAdminScreen(modifier: Modifier = Modifier) {
@@ -39,28 +44,31 @@ fun TotalReportAdminScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            DetailReport(Modifier.weight(1f))
 
-            Spacer(modifier = Modifier.height(60.dp))
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
+                DetailReport()
+            }
+
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.BottomEnd){
+                Icon(Icons.Default.ArrowBackIosNew, contentDescription = "back", tint = Color.White, modifier = Modifier.padding(25.dp))
+            }
         }
     }
 }
 
 @Composable
-fun DetailReport(modifier: Modifier) {
+fun DetailReport() {
     Box(
-        modifier = modifier
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(horizontal = 25.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer)
     ) {
-        val scrollState = rememberScrollState()
-
         Column(
             Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(horizontal = 16.dp, vertical = 14.dp)
+                .fillMaxWidth()
+                .padding(20.dp)
         ) {
             ReportDetailHeader("1999", "03/08/2024 10:29")
             Spacer(modifier = Modifier.height(15.dp))
@@ -71,7 +79,6 @@ fun DetailReport(modifier: Modifier) {
                 "Persuasiva",
                 "Positivo",
                 "Contribuyentes refieren que en el lugar se encuentran un grupo de 20 personas ingiriendo bebidas alcohólicas.",
-                "En el lugar llego la movil 55 y se dio las recomendaciones del caso.",
                 "Luis Manuel Perez Rengifo",
                 "Caminante",
                 "Movil 55",
@@ -88,7 +95,6 @@ fun ReportDetailsBody(
     sector: String,
     interventionType: String,
     interventionResult: String,
-    observers: String,
     detail: String,
     personal: String,
     cargo: String,
@@ -109,9 +115,6 @@ fun ReportDetailsBody(
     Spacer(modifier = Modifier.height(3.dp))
     MySection(stringResource(id = R.string.intervention_result_filter))
     MySectionData(interventionResult)
-    Spacer(modifier = Modifier.height(3.dp))
-    MySection(stringResource(id = R.string.observers_filter))
-    MySectionData(observers)
     Spacer(modifier = Modifier.height(3.dp))
     MySection(stringResource(id = R.string.detail_filter))
     MySectionData(detail)

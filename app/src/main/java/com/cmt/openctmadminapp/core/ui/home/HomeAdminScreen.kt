@@ -1,4 +1,4 @@
-package com.cmt.openctmadminapp.ui.home
+package com.cmt.openctmadminapp.core.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
-import com.cmt.openctmadminapp.model.Routes
-import com.cmt.openctmadminapp.ui.buttonNavigate.MyButton
+import com.cmt.openctmadminapp.core.navigation.Routes
+import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 
 //@Preview(showSystemUi = true)
 @Composable

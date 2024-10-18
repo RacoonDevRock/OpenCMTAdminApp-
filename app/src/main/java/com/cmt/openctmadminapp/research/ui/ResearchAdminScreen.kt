@@ -1,4 +1,4 @@
-package com.cmt.openctmadminapp.ui.research
+package com.cmt.openctmadminapp.research.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,8 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
-import com.cmt.openctmadminapp.model.Routes
-import com.cmt.openctmadminapp.ui.buttonNavigate.MyButton
+import com.cmt.openctmadminapp.core.navigation.Routes
+import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -87,7 +88,7 @@ fun ResearchAdminScreen(modifier: Modifier, navigationController: NavHostControl
         MyButton(
             navigate = { isBottomSheetVisible = true },
             textButton = stringResource(id = R.string.message_filter),
-            myIconButton = Icons.Default.Search,
+            myIconButton = Icons.Default.ArrowDropUp,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
 

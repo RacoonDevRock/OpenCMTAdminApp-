@@ -1,4 +1,4 @@
-package com.cmt.openctmadminapp.navigation
+package com.cmt.openctmadminapp.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -6,12 +6,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.cmt.openctmadminapp.model.Routes
-import com.cmt.openctmadminapp.ui.detailReport.DetailReportAdminScreen
-import com.cmt.openctmadminapp.ui.detailReport.TotalReportAdminScreen
-import com.cmt.openctmadminapp.ui.home.HomeAdminScreen
-import com.cmt.openctmadminapp.ui.login.LoginAdminScreen
-import com.cmt.openctmadminapp.ui.research.ResearchAdminScreen
+import com.cmt.openctmadminapp.detailReport.ui.DetailReportAdminScreen
+import com.cmt.openctmadminapp.detailReport.ui.TotalReportAdminScreen
+import com.cmt.openctmadminapp.core.ui.home.HomeAdminScreen
+import com.cmt.openctmadminapp.login.ui.LoginAdminScreen
+import com.cmt.openctmadminapp.research.ui.ResearchAdminScreen
 
 @Composable
 fun AppNavGraph(
