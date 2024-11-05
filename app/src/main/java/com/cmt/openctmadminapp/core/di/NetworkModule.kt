@@ -1,9 +1,10 @@
 package com.cmt.openctmadminapp.core.di
 
 import android.content.Context
-import androidx.navigation.NavHostController
-import com.cmt.openctmadminapp.core.navigation.Routes
 import com.cmt.openctmadminapp.login.data.network.LoginClient
+import com.cmt.openctmadminapp.report.detail.data.network.DetailClient
+import com.cmt.openctmadminapp.report.incidentToDetail.data.network.DetailIncidentClient
+import com.cmt.openctmadminapp.research.ui.data.network.SearchClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -40,14 +42,24 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @Named("AuthOkHttpClient")
     fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .build()
     }
+
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    @Named("NoAuthOkHttpClient")
+    fun provideNoOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder().build()
+    }
+
+    @Provides
+    @Singleton
+    @Named("RetrofitWithAuth")
+    fun provideRetrofitWithAuth(@Named("AuthOkHttpClient") okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder().baseUrl("http://192.168.0.3:8081/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create()).build()
@@ -55,7 +67,36 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideLoginClient(retrofit: Retrofit): LoginClient {
-        return retrofit.create(LoginClient::class.java)
+    @Named("RetrofitNoAuth")
+    fun provideRetrofitNoAuth(@Named("NoAuthOkHttpClient") noAuthOkHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("http://192.168.0.3:8081/")
+            .client(noAuthOkHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideLoginClient(@Named("RetrofitNoAuth") retrofitNoAuth: Retrofit): LoginClient {
+        return retrofitNoAuth.create(LoginClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSearchClient(@Named("RetrofitWithAuth") retrofitWithAuth: Retrofit): SearchClient {
+        return retrofitWithAuth.create(SearchClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDetailClient(@Named("RetrofitWithAuth") retrofitWithAuth: Retrofit): DetailClient {
+        return retrofitWithAuth.create(DetailClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDetailIncidentClient(@Named("RetrofitWithAuth") retrofitWithAuth: Retrofit): DetailIncidentClient {
+        return retrofitWithAuth.create(DetailIncidentClient::class.java)
     }
 }

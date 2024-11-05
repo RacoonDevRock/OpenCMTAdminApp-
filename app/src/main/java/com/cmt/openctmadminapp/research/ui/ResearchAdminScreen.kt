@@ -13,12 +13,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +31,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,22 +46,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
 import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
+import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
+import com.cmt.openctmadminapp.research.ui.viewmodel.SearchViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 //@Preview(showSystemUi = true)
 @Composable
-fun ResearchAdminScreen(modifier: Modifier, navigationController: NavHostController) {
+fun ResearchAdminScreen(
+    modifier: Modifier,
+    navigationController: NavHostController,
+    searchViewModel: SearchViewModel = hiltViewModel(),
+) {
+    val uiState by searchViewModel.uiState.collectAsState()
     var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-//            viewModel.loadIncidents()
-        }
+        searchViewModel.loadAllSolicitudes()
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -66,16 +76,49 @@ fun ResearchAdminScreen(modifier: Modifier, navigationController: NavHostControl
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            LazyColumn(
-                Modifier
-                    .fillMaxSize()
-                    .weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                items(1) {
-                    ReportBox({
-                        navigationController.navigate(Routes.DetailReportAdminScreen.route)
-                    }, "1999", "03/08/2020", "21:21", "Pendiente")
+            when {
+                uiState.isLoading -> {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        LoadingScreen()
+                    }
+                }
+
+                uiState.errorMessage != null -> {
+                    uiState.errorMessage?.let { errorMessage ->
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Text(
+                                text = errorMessage,
+                                color = Color.Red,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+
+                    LazyColumn(
+                        Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        items(uiState.solicitudes) { solicitud ->
+                            ReportBox(
+                                {
+                                    navigationController.navigate(
+                                        Routes.DetailReportAdminScreen.createRoute(
+                                            solicitud.nroSolicitud
+                                        )
+                                    )
+                                },
+                                solicitud.nroSolicitud,
+                                solicitud.fecha,
+                                solicitud.hora,
+                                solicitud.estado
+                            )
+                        }
+                    }
                 }
             }
 
@@ -83,7 +126,7 @@ fun ResearchAdminScreen(modifier: Modifier, navigationController: NavHostControl
         }
 
         if (isBottomSheetVisible) {
-            BottomSheetWithContent(onDismiss = { isBottomSheetVisible = false })
+            BottomSheetWithContent(searchViewModel, onDismiss = { isBottomSheetVisible = false })
         }
 
         MyButton(
@@ -98,7 +141,7 @@ fun ResearchAdminScreen(modifier: Modifier, navigationController: NavHostControl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetWithContent(onDismiss: () -> Unit) {
+fun BottomSheetWithContent(searchViewModel: SearchViewModel, onDismiss: () -> Unit) {
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },
         modifier = Modifier
@@ -107,12 +150,12 @@ fun BottomSheetWithContent(onDismiss: () -> Unit) {
         contentColor = Color.Black,
         shape = RoundedCornerShape(topStart = 110.dp, topEnd = 110.dp)
     ) {
-        BottomSheetContent()
+        BottomSheetContent(searchViewModel, onDismiss)
     }
 }
 
 @Composable
-fun BottomSheetContent() {
+fun BottomSheetContent(viewModel: SearchViewModel, onDismiss: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -126,39 +169,101 @@ fun BottomSheetContent() {
         )
         Spacer(modifier = Modifier.height(10.dp))
 
-        MyTextField(
-            stringResource(id = R.string.state_field_filter),
-            { },
-            stringResource(id = R.string.state_field_filter),
-            {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Seleccionar sector"
-                )
-            },
-            Modifier.align(Alignment.CenterHorizontally)
+        EstadoDropdown(
+            selectedEstado = viewModel.estadoStr,
+            onEstadoSelected = { viewModel.estadoStr = it }
         )
 
-        MyTextField(
-            stringResource(id = R.string.time_field_filter),
-            { },
-            stringResource(id = R.string.time_field_filter),
-            {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Seleccionar tipo de incidente"
-                )
-            },
-            Modifier.align(Alignment.CenterHorizontally)
+        PeriodoDropdown(
+            selectedPeriodo = viewModel.periodoStr,
+            onPeriodoSelected = { viewModel.periodoStr = it }
         )
 
         MyButton(
-            { },
+            {
+                viewModel.loadAllSolicitudes()
+                onDismiss()
+            },
             stringResource(id = R.string.filter_button),
             Icons.Default.Search
         )
     }
     Spacer(modifier = Modifier.width(56.dp))
+}
+
+@Composable
+fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String) -> Unit) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val periodos =
+        listOf("LAST_HOUR", "LAST_24_HOURS", "LAST_WEEK", "LAST_MONTH", "LAST_YEAR", "ALL_TIME")
+
+    Box {
+
+        MyTextField(
+            selectedPeriodo ?: "Tiempo",
+            {},
+            stringResource(id = R.string.time_field_filter),
+            trailingIcon = {
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clickable { expanded = true }
+                )
+            },
+            Modifier
+                .fillMaxWidth()
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            periodos.forEach { periodo ->
+                DropdownMenuItem(onClick = {
+                    onPeriodoSelected(periodo)
+                    expanded = false
+                },
+                    text = { Text(text = periodo) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EstadoDropdown(selectedEstado: String?, onEstadoSelected: (String) -> Unit) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val estados = listOf("PENDIENTE", "ACEPTADO", "RECHAZADO")
+
+    Box {
+        MyTextField(selectedEstado ?: "Estado",
+            {},
+            stringResource(id = R.string.state_field_filter),
+            trailingIcon = {
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    modifier = Modifier.clickable { expanded = !expanded }
+                )
+            },
+            Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true })
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            estados.forEach { estado ->
+                DropdownMenuItem(
+                    onClick = {
+                        onEstadoSelected(estado)
+                        expanded = false
+                    },
+                    text = { Text(text = estado) }
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -185,10 +290,10 @@ fun ReportBox(
     numberIncident: String,
     dateIncident: String,
     hourIncident: String,
-    motiveIncident: String,
+    statusIncident: String,
 ) {
 
-    val motiveColor = when (motiveIncident) {
+    val statusColor = when (statusIncident) {
         "Aprobado" -> Color(0xFF32A91D)
         "Rechazado" -> Color(0xFFFF9F19)
         "Pendiente" -> Color(0xFFD71414)
@@ -238,10 +343,10 @@ fun ReportBox(
             }
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = motiveIncident,
+                text = statusIncident,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 14.sp,
-                color = motiveColor,
+                color = statusColor,
                 lineHeight = 20.sp,
                 modifier = Modifier
                     .fillMaxWidth()

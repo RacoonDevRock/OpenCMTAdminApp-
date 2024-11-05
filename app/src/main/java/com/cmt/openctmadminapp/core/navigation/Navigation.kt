@@ -4,11 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.cmt.openctmadminapp.core.ui.home.HomeAdminScreen
-import com.cmt.openctmadminapp.detailReport.ui.DetailReportAdminScreen
-import com.cmt.openctmadminapp.detailReport.ui.TotalReportAdminScreen
+import com.cmt.openctmadminapp.report.detail.ui.DetailReportAdminScreen
+import com.cmt.openctmadminapp.report.incidentToDetail.ui.TotalReportAdminScreen
 import com.cmt.openctmadminapp.login.ui.LoginAdminScreen
 import com.cmt.openctmadminapp.research.ui.ResearchAdminScreen
 
@@ -46,13 +48,21 @@ fun NavGraphBuilder.addResearchRoute(modifier: Modifier, navController: NavHostC
 }
 
 fun NavGraphBuilder.addDetailIncidentRoute(modifier: Modifier, navController: NavHostController) {
-    composable(Routes.DetailReportAdminScreen.route) {
-        DetailReportAdminScreen(modifier = modifier, navigationController = navController)
+    composable(
+        route = "${Routes.DetailReportAdminScreen.route}/{nroIncidente}",
+        arguments = listOf(navArgument("nroIncidente") { type = NavType.StringType })
+    ) { backStackEntry ->
+        val nroIncidente = backStackEntry.arguments?.getString("nroIncidente") ?: ""
+        DetailReportAdminScreen(modifier = modifier, navigationController = navController, nroIncidente = nroIncidente)
     }
 }
 
 fun NavGraphBuilder.addReportRoute(modifier: Modifier, navController: NavHostController) {
-    composable(Routes.TotalReportAdminScreen.route) {
-        TotalReportAdminScreen(modifier = modifier, navigationController = navController)
+    composable(
+        route = "${Routes.TotalReportAdminScreen.route}/{nroIncidente}",
+        arguments = listOf(navArgument("nroIncidente") { type = NavType.StringType })
+    ) { backStackEntry ->
+        val nroSolicitud = backStackEntry.arguments?.getString("nroIncidente") ?: ""
+        TotalReportAdminScreen(modifier = modifier, navigationController = navController, nroSolicitud = nroSolicitud)
     }
 }

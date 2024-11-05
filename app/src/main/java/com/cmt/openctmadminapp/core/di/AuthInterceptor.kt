@@ -12,17 +12,20 @@ class AuthInterceptor(
         val originalRequest = chain.request()
         val token = tokenProvider.getToken()
 
-        val newRequest = originalRequest.newBuilder()
-            .header("Authorization", "Bearer $token")
-            .build()
+        if (token != null && originalRequest.header("Authorization") != null) {
+            val newRequest = originalRequest.newBuilder()
+                .header("Authorization", "Bearer $token")
+                .build()
 
-        val response = chain.proceed(newRequest)
+            val response = chain.proceed(newRequest)
 
-        if (response.code() == 401) {
-            tokenProvider.clearToken()
-            onUnauthorized.tryEmit(Unit)
+            if (response.code() == 401) {
+                tokenProvider.clearToken()
+                onUnauthorized.tryEmit(Unit)
+            }
+
+            return response
         }
-
-        return response
+        return chain.proceed(originalRequest)
     }
 }

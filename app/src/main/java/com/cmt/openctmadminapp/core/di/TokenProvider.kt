@@ -1,7 +1,9 @@
 package com.cmt.openctmadminapp.core.di
 
 import android.content.SharedPreferences
+import javax.inject.Singleton
 
+@Singleton
 class TokenProvider(private val sharedPreferences: SharedPreferences) {
 
     fun getToken(): String? {

@@ -1,4 +1,4 @@
-package com.cmt.openctmadminapp.detailReport.ui
+package com.cmt.openctmadminapp.report.detail.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -26,6 +26,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,31 +41,65 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
 import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
+import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
+import com.cmt.openctmadminapp.report.detail.data.network.response.SolicitudDTODetail
+import com.cmt.openctmadminapp.report.detail.ui.viewmodel.DetailViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
-fun DetailReportAdminScreen(modifier: Modifier, navigationController: NavHostController) {
+fun DetailReportAdminScreen(
+    modifier: Modifier,
+    navigationController: NavHostController,
+    nroIncidente: String,
+    detailViewModel: DetailViewModel = hiltViewModel(),
+) {
+    val isLoading by detailViewModel.isLoading.collectAsState()
+    val solicitudDetail by detailViewModel.solicitudDetail.collectAsState()
+
+    LaunchedEffect(Unit) {
+        detailViewModel.loadSolicitudDetail(nroIncidente)
+    }
+
     Box(
         modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            HeaderDetailAndTotal(navigationController)
 
-            Spacer(modifier = Modifier.height(20.dp))
+        if (isLoading) {
+            LoadingScreen()
+        } else {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                HeaderDetailAndTotal(navigationController)
 
-            DetailReportContainer(Modifier.weight(1f)) { navigationController.navigate(Routes.TotalReportAdminScreen.route) }
+                Spacer(modifier = Modifier.height(20.dp))
+                solicitudDetail?.let { detail ->
+                    DetailReportContainer(
+                        Modifier.weight(1f),
+                        {
+                            navigationController.navigate(
+                                Routes.TotalReportAdminScreen.createRoute(
+                                    detail.nroSolicitud
+                                )
+                            )
+                        },
+                        detail
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-            ReportBoxBottom { navigationController.navigate(Routes.HomeAdminScreen.route) }
+                ReportBoxBottom { navigationController.navigate(Routes.HomeAdminScreen.route) }
+            }
         }
     }
 }
@@ -152,7 +189,11 @@ fun ReportBoxBottom(navigate: () -> Unit) {
 }
 
 @Composable
-fun DetailReportContainer(modifier: Modifier, navigate: () -> Unit) {
+fun DetailReportContainer(
+    modifier: Modifier,
+    navigate: () -> Unit,
+    solicitudDTODetail: SolicitudDTODetail,
+) {
     Box(
         modifier = modifier
             .padding(horizontal = 25.dp)
@@ -167,16 +208,16 @@ fun DetailReportContainer(modifier: Modifier, navigate: () -> Unit) {
                 .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
-            ReportHeader("1999", "03/08/2024 10:29")
+            ReportHeader(solicitudDTODetail.nroSolicitud, solicitudDTODetail.fechaSolicitud)
             Spacer(modifier = Modifier.height(10.dp))
             ReportDetails(
-                "Luis Victoria Vega Vilchez",
-                "18103629",
-                "Los Laureles 126 Urb. California",
-                "vvvluisa@gmailcom",
-                "985125499",
-                "Necesito el informe de la incidencia para presentar en el parte policial de mi denuncia.",
-                "1999"
+                solicitudDTODetail.solicitante,
+                solicitudDTODetail.identificacion,
+                solicitudDTODetail.domicilio,
+                solicitudDTODetail.correoElectronico,
+                solicitudDTODetail.telefono,
+                solicitudDTODetail.motivo,
+                solicitudDTODetail.nroIncidente
             )
         }
         Icon(
