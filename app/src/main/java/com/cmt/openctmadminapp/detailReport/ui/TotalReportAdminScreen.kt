@@ -21,11 +21,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
-import com.cmt.openctmadminapp.research.ui.HeaderSection
 
 @Composable
-fun TotalReportAdminScreen(modifier: Modifier = Modifier) {
+fun TotalReportAdminScreen(modifier: Modifier = Modifier, navigationController: NavHostController) {
     Box(
         modifier
             .fillMaxSize()
@@ -34,7 +34,7 @@ fun TotalReportAdminScreen(modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            HeaderSection()
+            HeaderDetailAndTotal(navigationController)
 
             Spacer(modifier = Modifier.height(20.dp))
 

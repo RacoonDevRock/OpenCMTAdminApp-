@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -74,7 +75,7 @@ fun ResearchAdminScreen(modifier: Modifier, navigationController: NavHostControl
                 items(1) {
                     ReportBox({
                         navigationController.navigate(Routes.DetailReportAdminScreen.route)
-                    }, "1999", "03/08/2020 21:21", "Consumo de licor en la vía pública")
+                    }, "1999", "03/08/2020", "21:21", "Pendiente")
                 }
             }
 
@@ -88,7 +89,7 @@ fun ResearchAdminScreen(modifier: Modifier, navigationController: NavHostControl
         MyButton(
             navigate = { isBottomSheetVisible = true },
             textButton = stringResource(id = R.string.message_filter),
-            myIconButton = Icons.Default.ArrowDropUp,
+            myIconButton = Icons.Default.KeyboardArrowUp,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
 
@@ -183,8 +184,16 @@ fun ReportBox(
     navigate: () -> Unit,
     numberIncident: String,
     dateIncident: String,
+    hourIncident: String,
     motiveIncident: String,
 ) {
+
+    val motiveColor = when (motiveIncident) {
+        "Aprobado" -> Color(0xFF32A91D)
+        "Rechazado" -> Color(0xFFFF9F19)
+        "Pendiente" -> Color(0xFFD71414)
+        else -> Color.Black
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -218,13 +227,21 @@ fun ReportBox(
                     color = Color.Black,
                     lineHeight = 20.sp
                 )
+                Text(
+                    text = hourIncident,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    lineHeight = 20.sp,
+                    modifier = Modifier.padding(start = 3.dp)
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = motiveIncident,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 14.sp,
-                color = Color.Black,
+                color = motiveColor,
                 lineHeight = 20.sp,
                 modifier = Modifier
                     .fillMaxWidth()

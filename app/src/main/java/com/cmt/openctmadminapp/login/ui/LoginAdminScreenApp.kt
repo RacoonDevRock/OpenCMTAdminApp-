@@ -1,5 +1,6 @@
 package com.cmt.openctmadminapp.login.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,16 +44,29 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
 import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 import com.cmt.openctmadminapp.core.ui.home.LogoSection
+import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
+import com.cmt.openctmadminapp.login.ui.viewmodel.LoginState
+import com.cmt.openctmadminapp.login.ui.viewmodel.LoginViewModel
 
 //@Preview(showSystemUi = true)
 @Composable
-fun LoginAdminScreen(modifier: Modifier, navigationController: NavHostController) {
-    val navigateToResearch = remember { Routes.ResearchAdminScreen.route }
+fun LoginAdminScreen(
+    modifier: Modifier,
+    navigationController: NavHostController,
+    viewModel: LoginViewModel = hiltViewModel(),
+) {
+    val context = LocalContext.current
+    val loginState by viewModel.loginState.collectAsState()
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+
+    var toast: Toast? = null
 
     Column(
         modifier = modifier
@@ -57,14 +74,47 @@ fun LoginAdminScreen(modifier: Modifier, navigationController: NavHostController
             .background(MaterialTheme.colorScheme.background)
     ) {
         LogoSection(Modifier.weight(1f))
-        RegisterSection(Modifier.weight(1f)) { navigationController.navigate(navigateToResearch) }
+        RegisterSection(Modifier.weight(1f),
+            email = email,
+            password = password,
+            onEmailChange = { email = it },
+            onPasswordChange = { password = it },
+            onLoginClick = { viewModel.login(email, password) }
+        )
+
+        when (loginState) {
+            is LoginState.Loading -> {
+                LoadingScreen()
+            }
+            is LoginState.Success -> {
+                LaunchedEffect(Unit) {
+                    navigationController.navigate(Routes.ResearchAdminScreen.route)
+                }
+            }
+            is LoginState.ValidationError -> {
+                val message = (loginState as LoginState.ValidationError).message
+                toast?.cancel()
+                toast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply { show() }
+            }
+            is LoginState.Error -> {
+                val message = (loginState as LoginState.Error).message
+                toast?.cancel()
+                toast = Toast.makeText(context, message, Toast.LENGTH_LONG).apply { show() }
+            }
+            else -> { /* Do nothing for Idle state */ }
+        }
     }
 }
 
 @Composable
-fun RegisterSection(modifier: Modifier, navigate: () -> Unit) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+fun RegisterSection(
+    modifier: Modifier,
+    email: String,
+    password: String,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLoginClick: () -> Unit
+) {
 
     Box(
         modifier = modifier
@@ -87,16 +137,20 @@ fun RegisterSection(modifier: Modifier, navigate: () -> Unit) {
                 modifier = Modifier.padding(horizontal = 50.dp)
             )
             Spacer(modifier = Modifier.height(25.dp))
-            EmailField(label = stringResource(id = R.string.login_email_field), email) {
-                email = it
-            }
+            EmailField(
+                label = stringResource(id = R.string.login_email_field),
+                email,
+                onEmailChange
+            )
             Spacer(modifier = Modifier.height(25.dp))
-            PasswordField(label = stringResource(id = R.string.login_pass_field), password) {
-                password = it
-            }
+            PasswordField(
+                label = stringResource(id = R.string.login_pass_field),
+                password,
+                onPasswordChange
+            )
             Spacer(modifier = Modifier.height(25.dp))
             MyButton(
-                navigate,
+                onLoginClick,
                 stringResource(id = R.string.login_button),
                 Icons.AutoMirrored.Filled.ArrowForwardIos
             )

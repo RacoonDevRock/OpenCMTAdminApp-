@@ -1,5 +1,7 @@
 package com.cmt.openctmadminapp.detailReport.ui
 
+import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,11 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,16 +30,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
 import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
-import com.cmt.openctmadminapp.research.ui.HeaderSection
 
 @Composable
 fun DetailReportAdminScreen(modifier: Modifier, navigationController: NavHostController) {
@@ -46,7 +54,7 @@ fun DetailReportAdminScreen(modifier: Modifier, navigationController: NavHostCon
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            HeaderSection()
+            HeaderDetailAndTotal(navigationController)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -60,7 +68,41 @@ fun DetailReportAdminScreen(modifier: Modifier, navigationController: NavHostCon
 }
 
 @Composable
+fun HeaderDetailAndTotal(navController: NavController) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp)
+    ) {
+        IconBack(navController, Modifier.align(Alignment.TopStart))
+        Image(
+            painter = painterResource(id = R.drawable.open_logo_small),
+            contentDescription = "Logo CMT",
+            Modifier
+                .padding(top = 30.dp)
+                .align(Alignment.Center),
+            contentScale = ContentScale.Fit
+        )
+    }
+}
+
+
+@Composable
+fun IconBack(navController: NavController, modifier: Modifier) {
+    Icon(
+        imageVector = Icons.Default.ArrowBackIosNew,
+        contentDescription = "Retroceso",
+        modifier = modifier
+            .padding(24.dp)
+            .clickable { navController.popBackStack() },
+        tint = MaterialTheme.colorScheme.tertiary
+    )
+}
+
+@Composable
 fun ReportBoxBottom(navigate: () -> Unit) {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -86,11 +128,25 @@ fun ReportBoxBottom(navigate: () -> Unit) {
 
             Spacer(modifier = Modifier.height(25.dp))
 
-            MyButton(
-                navigate = navigate,
-                textButton = stringResource(id = R.string.approve_report_button),
-                myIconButton = Icons.Default.Check
-            )
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                MyButton(
+                    {
+                        Toast.makeText(context, "Respuesta enviada", Toast.LENGTH_SHORT).show()
+                        navigate()
+                    },
+                    textButton = stringResource(id = R.string.attend_report_button),
+                    myIconButton = Icons.Default.Check
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                MyButton(
+                    {
+                        Toast.makeText(context, "Respuesta enviada", Toast.LENGTH_SHORT).show()
+                        navigate()
+                    },
+                    textButton = stringResource(id = R.string.reject_report_button),
+                    myIconButton = Icons.Default.Clear
+                )
+            }
         }
     }
 }

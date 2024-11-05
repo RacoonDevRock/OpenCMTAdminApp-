@@ -6,9 +6,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.cmt.openctmadminapp.core.ui.home.HomeAdminScreen
 import com.cmt.openctmadminapp.detailReport.ui.DetailReportAdminScreen
 import com.cmt.openctmadminapp.detailReport.ui.TotalReportAdminScreen
-import com.cmt.openctmadminapp.core.ui.home.HomeAdminScreen
 import com.cmt.openctmadminapp.login.ui.LoginAdminScreen
 import com.cmt.openctmadminapp.research.ui.ResearchAdminScreen
 
@@ -23,7 +23,7 @@ fun AppNavGraph(
         addLoginRoute(modifier, navController)
         addResearchRoute(modifier, navController)
         addDetailIncidentRoute(modifier, navController)
-        addReportRoute(modifier)
+        addReportRoute(modifier, navController)
     }
 }
 
@@ -51,8 +51,8 @@ fun NavGraphBuilder.addDetailIncidentRoute(modifier: Modifier, navController: Na
     }
 }
 
-fun NavGraphBuilder.addReportRoute(modifier: Modifier) {
+fun NavGraphBuilder.addReportRoute(modifier: Modifier, navController: NavHostController) {
     composable(Routes.TotalReportAdminScreen.route) {
-        TotalReportAdminScreen(modifier = modifier)
+        TotalReportAdminScreen(modifier = modifier, navigationController = navController)
     }
 }

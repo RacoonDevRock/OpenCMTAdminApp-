@@ -28,8 +28,9 @@
     <string name="n_incident_report">N° Incidente</string>
 
     <!-- Approve Report -->
-    <string name="approve_report_description">¿Fue atendida tu solicitud?</string>
-    <string name="approve_report_button">Sí</string>
+    <string name="approve_report_description">Acciones</string>
+    <string name="attend_report_button">Aprobar</string>
+    <string name="reject_report_button">Rechazar</string>
 
     <!-- Detail Report -->
     <string name="incident_type_field_filter">Tipo de Incidente</string>

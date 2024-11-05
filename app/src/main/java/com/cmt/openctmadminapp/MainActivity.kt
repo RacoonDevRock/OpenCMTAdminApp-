@@ -14,7 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import com.cmt.openctmadminapp.core.navigation.AppNavGraph
 import com.cmt.openctmadminapp.core.network.CheckInternetScreen
 import com.cmt.openctmadminapp.ui.theme.OpenCTMAdminAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

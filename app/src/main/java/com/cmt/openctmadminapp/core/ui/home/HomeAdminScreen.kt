@@ -37,7 +37,7 @@ import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 //@Preview(showSystemUi = true)
 @Composable
 fun HomeAdminScreen(modifier: Modifier, navigationController: NavHostController) {
-    val navigateToResearch = remember { Routes.LoginAdminScreen.route }
+    val navigateToLogin = remember { Routes.LoginAdminScreen.route }
 
     Column(
         modifier = modifier
@@ -45,7 +45,7 @@ fun HomeAdminScreen(modifier: Modifier, navigationController: NavHostController)
             .background(MaterialTheme.colorScheme.background)
     ) {
         LogoSection(Modifier.weight(1f))
-        InfoSection(Modifier.weight(1f)) { navigationController.navigate(navigateToResearch) }
+        InfoSection(Modifier.weight(1f)) { navigationController.navigate(navigateToLogin) }
     }
 }
 

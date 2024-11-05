@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -64,6 +66,15 @@ dependencies {
     // Material Icons Extended
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.navigation.compose)
+
+    // Retrofit para las conexiones HTTP
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    // Hilt para la inyección de dependencias
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
