@@ -1,4 +1,4 @@
-package com.cmt.openctmadminapp.research.ui.data.network.response
+package com.cmt.openctmadminapp.research.data.network.response
 
 import com.google.gson.annotations.SerializedName
 

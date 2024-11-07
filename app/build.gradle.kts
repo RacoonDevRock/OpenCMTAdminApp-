@@ -76,6 +76,9 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
+    // https://mvnrepository.com/artifact/com.google.accompanist/accompanist-swiperefresh
+    implementation(libs.accompanist.swiperefresh)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

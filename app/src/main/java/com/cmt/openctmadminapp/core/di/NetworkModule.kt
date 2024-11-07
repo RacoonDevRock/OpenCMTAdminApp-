@@ -4,7 +4,7 @@ import android.content.Context
 import com.cmt.openctmadminapp.login.data.network.LoginClient
 import com.cmt.openctmadminapp.report.detail.data.network.DetailClient
 import com.cmt.openctmadminapp.report.incidentToDetail.data.network.DetailIncidentClient
-import com.cmt.openctmadminapp.research.ui.data.network.SearchClient
+import com.cmt.openctmadminapp.research.data.network.SearchClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,7 +60,7 @@ object NetworkModule {
     @Singleton
     @Named("RetrofitWithAuth")
     fun provideRetrofitWithAuth(@Named("AuthOkHttpClient") okHttpClient: OkHttpClient): Retrofit {
-        return Retrofit.Builder().baseUrl("http://192.168.0.3:8081/")
+        return Retrofit.Builder().baseUrl("http://<cambiar_red>:8081/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create()).build()
     }
@@ -70,7 +70,7 @@ object NetworkModule {
     @Named("RetrofitNoAuth")
     fun provideRetrofitNoAuth(@Named("NoAuthOkHttpClient") noAuthOkHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://192.168.0.3:8081/")
+            .baseUrl("http://<cambiar_red>:8081/")
             .client(noAuthOkHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

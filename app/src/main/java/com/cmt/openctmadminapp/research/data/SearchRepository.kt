@@ -1,7 +1,7 @@
-package com.cmt.openctmadminapp.research.ui.data
+package com.cmt.openctmadminapp.research.data
 
-import com.cmt.openctmadminapp.research.ui.data.network.SearchClient
-import com.cmt.openctmadminapp.research.ui.data.network.response.SolicitudDTOResponse
+import com.cmt.openctmadminapp.research.data.network.SearchClient
+import com.cmt.openctmadminapp.research.data.network.response.SolicitudDTOResponse
 import retrofit2.Response
 import javax.inject.Inject
 

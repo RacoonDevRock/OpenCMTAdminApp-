@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
@@ -53,8 +52,8 @@ import com.cmt.openctmadminapp.core.navigation.Routes
 import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
 import com.cmt.openctmadminapp.research.ui.viewmodel.SearchViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 //@Preview(showSystemUi = true)
 @Composable
@@ -65,77 +64,85 @@ fun ResearchAdminScreen(
 ) {
     val uiState by searchViewModel.uiState.collectAsState()
     var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
 
     LaunchedEffect(Unit) {
         searchViewModel.loadAllSolicitudes()
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            HeaderSection()
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            when {
-                uiState.isLoading -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        LoadingScreen()
-                    }
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = { searchViewModel.loadAllSolicitudes() }) {
+        when {
+            uiState.isLoading && !swipeRefreshState.isRefreshing -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LoadingScreen()
                 }
+            }
 
-                uiState.errorMessage != null -> {
-                    uiState.errorMessage?.let { errorMessage ->
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            Text(
-                                text = errorMessage,
-                                color = Color.Red,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
-                }
-
-                else -> {
-
-                    LazyColumn(
-                        Modifier
-                            .fillMaxSize()
-                            .weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        items(uiState.solicitudes) { solicitud ->
-                            ReportBox(
-                                {
-                                    navigationController.navigate(
-                                        Routes.DetailReportAdminScreen.createRoute(
-                                            solicitud.nroSolicitud
-                                        )
-                                    )
-                                },
-                                solicitud.nroSolicitud,
-                                solicitud.fecha,
-                                solicitud.hora,
-                                solicitud.estado
-                            )
-                        }
+            uiState.errorMessage != null -> {
+                uiState.errorMessage?.let { errorMessage ->
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = errorMessage,
+                            color = Color.Red,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(75.dp))
+            else -> {
+
+                Box(modifier = modifier.fillMaxSize()) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        HeaderSection()
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        LazyColumn(
+                            Modifier
+                                .fillMaxSize()
+                                .weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            items(uiState.solicitudes) { solicitud ->
+                                ReportBox(
+                                    {
+                                        navigationController.navigate(
+                                            Routes.DetailReportAdminScreen.createRoute(
+                                                solicitud.nroSolicitud
+                                            )
+                                        )
+                                    },
+                                    solicitud.nroSolicitud,
+                                    solicitud.fecha,
+                                    solicitud.hora,
+                                    solicitud.estado
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(75.dp))
+
+                    }
+
+                    if (isBottomSheetVisible) {
+                        BottomSheetWithContent(
+                            searchViewModel,
+                            onDismiss = { isBottomSheetVisible = false })
+                    }
+
+                    MyButton(
+                        navigate = { isBottomSheetVisible = true },
+                        textButton = stringResource(id = R.string.message_filter),
+                        myIconButton = Icons.Default.KeyboardArrowUp,
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                }
+            }
         }
-
-        if (isBottomSheetVisible) {
-            BottomSheetWithContent(searchViewModel, onDismiss = { isBottomSheetVisible = false })
-        }
-
-        MyButton(
-            navigate = { isBottomSheetVisible = true },
-            textButton = stringResource(id = R.string.message_filter),
-            myIconButton = Icons.Default.KeyboardArrowUp,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
-
     }
 }
 
@@ -192,15 +199,21 @@ fun BottomSheetContent(viewModel: SearchViewModel, onDismiss: () -> Unit) {
 }
 
 @Composable
-fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String) -> Unit) {
+fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String?) -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val periodos =
-        listOf("LAST_HOUR", "LAST_24_HOURS", "LAST_WEEK", "LAST_MONTH", "LAST_YEAR", "ALL_TIME")
+    val periodos = mapOf(
+        "Última hora" to "LAST_HOUR",
+        "Últimas 24 horas" to "LAST_24_HOURS",
+        "Última semana" to "LAST_WEEK",
+        "Último mes" to "LAST_MONTH",
+        "Último año" to "LAST_YEAR",
+        "Todos" to null
+    )
 
     Box {
 
         MyTextField(
-            selectedPeriodo ?: "Tiempo",
+            periodos.entries.find { it.value == selectedPeriodo }?.key ?: "Tiempo",
             {},
             stringResource(id = R.string.time_field_filter),
             trailingIcon = {
@@ -216,14 +229,17 @@ fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String) -> Uni
         )
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(color = Color.White)
+                .align(Alignment.Center),
         ) {
-            periodos.forEach { periodo ->
+            periodos.forEach { (displayText, value) ->
                 DropdownMenuItem(onClick = {
-                    onPeriodoSelected(periodo)
+                    onPeriodoSelected(value)
                     expanded = false
                 },
-                    text = { Text(text = periodo) }
+                    text = { Text(text = displayText, color = MaterialTheme.colorScheme.tertiary) }
                 )
             }
         }
@@ -231,12 +247,18 @@ fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String) -> Uni
 }
 
 @Composable
-fun EstadoDropdown(selectedEstado: String?, onEstadoSelected: (String) -> Unit) {
+fun EstadoDropdown(selectedEstado: String?, onEstadoSelected: (String?) -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val estados = listOf("PENDIENTE", "ACEPTADO", "RECHAZADO")
+    val estados = mapOf(
+        "Todas" to null,
+        "Pendiente" to "PENDIENTE",
+        "Aceptado" to "ACEPTADO",
+        "Rechazado" to "RECHAZADO"
+    )
 
     Box {
-        MyTextField(selectedEstado ?: "Estado",
+        MyTextField(
+            estados.entries.find { it.value == selectedEstado }?.key ?: "Estado",
             {},
             stringResource(id = R.string.state_field_filter),
             trailingIcon = {
@@ -251,15 +273,18 @@ fun EstadoDropdown(selectedEstado: String?, onEstadoSelected: (String) -> Unit) 
                 .clickable { expanded = true })
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(color = Color.White)
+                .align(Alignment.Center)
         ) {
-            estados.forEach { estado ->
+            estados.forEach { (displayText, value) ->
                 DropdownMenuItem(
                     onClick = {
-                        onEstadoSelected(estado)
+                        onEstadoSelected(value)
                         expanded = false
                     },
-                    text = { Text(text = estado) }
+                    text = { Text(text = displayText, color = MaterialTheme.colorScheme.tertiary) }
                 )
             }
         }
@@ -294,9 +319,9 @@ fun ReportBox(
 ) {
 
     val statusColor = when (statusIncident) {
-        "Aprobado" -> Color(0xFF32A91D)
-        "Rechazado" -> Color(0xFFFF9F19)
-        "Pendiente" -> Color(0xFFD71414)
+        "ACEPTADO" -> Color(0xFF32A91D)
+        "RECHAZADO" -> Color(0xFFFF9F19)
+        "PENDIENTE" -> Color(0xFFD71414)
         else -> Color.Black
     }
     Box(

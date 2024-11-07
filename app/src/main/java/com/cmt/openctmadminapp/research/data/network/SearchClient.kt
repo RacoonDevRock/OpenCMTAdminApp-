@@ -1,6 +1,6 @@
-package com.cmt.openctmadminapp.research.ui.data.network
+package com.cmt.openctmadminapp.research.data.network
 
-import com.cmt.openctmadminapp.research.ui.data.network.response.SolicitudResponse
+import com.cmt.openctmadminapp.research.data.network.response.SolicitudResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header

@@ -141,14 +141,17 @@ fun ReportDetailsBody(
     MySectionData(detail)
     Spacer(modifier = Modifier.height(3.dp))
 
-    personalList.forEach { personal ->
-        Row(Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.weight(0.7f)) {
-                MySection(stringResource(id = R.string.personal_filter))
+
+    Row(Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.weight(0.7f)) {
+            MySection(stringResource(id = R.string.personal_filter))
+            personalList.forEach { personal ->
                 MySectionData(personal.nombreCompleto)
             }
-            Column(modifier = Modifier.weight(0.3f)) {
-                MySection(stringResource(id = R.string.cargo_filter))
+        }
+        Column(modifier = Modifier.weight(0.3f)) {
+            MySection(stringResource(id = R.string.cargo_filter))
+            personalList.forEach { personal ->
                 MySectionData(personal.cargo)
             }
         }
@@ -156,14 +159,17 @@ fun ReportDetailsBody(
 
     Spacer(modifier = Modifier.height(3.dp))
 
-    vehicleList.forEach { vehicle ->
-        Row(Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.weight(0.7f)) {
-                MySection(stringResource(id = R.string.vehicle_filter))
+
+    Row(Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.weight(0.7f)) {
+            MySection(stringResource(id = R.string.vehicle_filter))
+            vehicleList.forEach { vehicle ->
                 MySectionData("Movil ${vehicle.numero}")
             }
-            Column(modifier = Modifier.weight(0.3f)) {
-                MySection(stringResource(id = R.string.plate_filter))
+        }
+        Column(modifier = Modifier.weight(0.3f)) {
+            MySection(stringResource(id = R.string.plate_filter))
+            vehicleList.forEach { vehicle ->
                 MySectionData(vehicle.placa)
             }
         }

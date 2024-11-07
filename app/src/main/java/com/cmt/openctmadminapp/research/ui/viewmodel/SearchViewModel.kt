@@ -1,13 +1,12 @@
 package com.cmt.openctmadminapp.research.ui.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cmt.openctmadminapp.research.ui.data.SearchRepository
-import com.cmt.openctmadminapp.research.ui.data.network.response.SolicitudDTOResponse
+import com.cmt.openctmadminapp.research.data.SearchRepository
+import com.cmt.openctmadminapp.research.data.network.response.SolicitudDTOResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

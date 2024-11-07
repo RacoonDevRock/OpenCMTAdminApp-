@@ -5,9 +5,9 @@ sealed class Routes(val route: String) {
     object LoginAdminScreen : Routes("loginAdminScreen")
     object ResearchAdminScreen : Routes("researchAdminScreen")
     object DetailReportAdminScreen : Routes("detailReportAdminScreen") {
-        fun createRoute(nroIncidente: String) = "detailReportAdminScreen/$nroIncidente"
+        fun createRoute(nroSolicitud: String) = "detailReportAdminScreen/$nroSolicitud"
     }
     object TotalReportAdminScreen: Routes("totalReportAdminScreen") {
-        fun createRoute(nroIncidente: String) = "totalReportAdminScreen/$nroIncidente"
+        fun createRoute(nroSolicitud: String) = "totalReportAdminScreen/$nroSolicitud"
     }
 }

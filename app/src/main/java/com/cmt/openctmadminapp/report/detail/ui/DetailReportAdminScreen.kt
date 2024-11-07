@@ -50,32 +50,31 @@ import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
 import com.cmt.openctmadminapp.report.detail.data.network.response.SolicitudDTODetail
 import com.cmt.openctmadminapp.report.detail.ui.viewmodel.DetailViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @Composable
 fun DetailReportAdminScreen(
     modifier: Modifier,
     navigationController: NavHostController,
-    nroIncidente: String,
+    nroSolicitud: String,
     detailViewModel: DetailViewModel = hiltViewModel(),
 ) {
     val isLoading by detailViewModel.isLoading.collectAsState()
+    val isActionLoading by detailViewModel.isActionLoading.collectAsState()
     val solicitudDetail by detailViewModel.solicitudDetail.collectAsState()
 
     LaunchedEffect(Unit) {
-        detailViewModel.loadSolicitudDetail(nroIncidente)
+        detailViewModel.loadSolicitudDetail(nroSolicitud)
     }
 
-    Box(
-        modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
+    if (isLoading || isActionLoading) {
+        LoadingScreen()
+    } else {
 
-        if (isLoading) {
-            LoadingScreen()
-        } else {
+        Box(
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -98,7 +97,12 @@ fun DetailReportAdminScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                ReportBoxBottom { navigationController.navigate(Routes.HomeAdminScreen.route) }
+                ReportBoxBottom(
+                    detailViewModel,
+                    nroSolicitud
+                ) {
+                    navigationController.navigate(Routes.ResearchAdminScreen.route)
+                }
             }
         }
     }
@@ -137,7 +141,11 @@ fun IconBack(navController: NavController, modifier: Modifier) {
 }
 
 @Composable
-fun ReportBoxBottom(navigate: () -> Unit) {
+fun ReportBoxBottom(
+    detailViewModel: DetailViewModel,
+    nroSolicitud: String,
+    onNavigateBack: () -> Unit,
+) {
     val context = LocalContext.current
 
     Box(
@@ -168,8 +176,9 @@ fun ReportBoxBottom(navigate: () -> Unit) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 MyButton(
                     {
-                        Toast.makeText(context, "Respuesta enviada", Toast.LENGTH_SHORT).show()
-                        navigate()
+                        detailViewModel.approveSolicitud(nroSolicitud) { onNavigateBack() }
+                        Toast.makeText(context, "Solicitud aprobada", Toast.LENGTH_SHORT).show()
+                        onNavigateBack()
                     },
                     textButton = stringResource(id = R.string.attend_report_button),
                     myIconButton = Icons.Default.Check
@@ -177,8 +186,9 @@ fun ReportBoxBottom(navigate: () -> Unit) {
                 Spacer(modifier = Modifier.width(5.dp))
                 MyButton(
                     {
-                        Toast.makeText(context, "Respuesta enviada", Toast.LENGTH_SHORT).show()
-                        navigate()
+                        detailViewModel.rejectSolicitud(nroSolicitud) { onNavigateBack() }
+                        Toast.makeText(context, "Solicitud rechazada", Toast.LENGTH_SHORT).show()
+                        onNavigateBack()
                     },
                     textButton = stringResource(id = R.string.reject_report_button),
                     myIconButton = Icons.Default.Clear
