@@ -76,9 +76,7 @@ fun ResearchAdminScreen(
         onRefresh = { searchViewModel.loadAllSolicitudes() }) {
         when {
             uiState.isLoading && !swipeRefreshState.isRefreshing -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    LoadingScreen()
-                }
+                LoadingScreen()
             }
 
             uiState.errorMessage != null -> {
@@ -207,7 +205,7 @@ fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String?) -> Un
         "Última semana" to "LAST_WEEK",
         "Último mes" to "LAST_MONTH",
         "Último año" to "LAST_YEAR",
-        "Todos" to null
+        "Todo el tiempo" to null
     )
 
     Box {
@@ -220,12 +218,10 @@ fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String?) -> Un
                 Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    modifier = Modifier
-                        .clickable { expanded = true }
+                    modifier = Modifier.clickable { expanded = true }
                 )
             },
-            Modifier
-                .fillMaxWidth()
+            Modifier.fillMaxWidth()
         )
         DropdownMenu(
             expanded = expanded,
@@ -250,7 +246,7 @@ fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String?) -> Un
 fun EstadoDropdown(selectedEstado: String?, onEstadoSelected: (String?) -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val estados = mapOf(
-        "Todas" to null,
+        "Todos los estados" to null,
         "Pendiente" to "PENDIENTE",
         "Aceptado" to "ACEPTADO",
         "Rechazado" to "RECHAZADO"
@@ -265,12 +261,12 @@ fun EstadoDropdown(selectedEstado: String?, onEstadoSelected: (String?) -> Unit)
                 Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    modifier = Modifier.clickable { expanded = !expanded }
+                    modifier = Modifier.clickable { expanded = true }
                 )
             },
             Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true })
+        )
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },

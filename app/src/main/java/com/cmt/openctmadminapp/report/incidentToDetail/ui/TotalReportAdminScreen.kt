@@ -145,15 +145,22 @@ fun ReportDetailsBody(
     Row(Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.weight(0.7f)) {
             MySection(stringResource(id = R.string.personal_filter))
-            personalList.forEach { personal ->
-                MySectionData(personal.nombreCompleto)
+            if (personalList.isEmpty()) {
+                MySectionData("-")
+            } else {
+                personalList.forEach { personal ->
+                    MySectionData(personal.nombreCompleto)
+                }
             }
         }
         Column(modifier = Modifier.weight(0.3f)) {
             MySection(stringResource(id = R.string.cargo_filter))
+            if (personalList.isEmpty()) {
+                MySectionData("-")
+            } else {
             personalList.forEach { personal ->
                 MySectionData(personal.cargo)
-            }
+            }}
         }
     }
 
@@ -163,14 +170,22 @@ fun ReportDetailsBody(
     Row(Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.weight(0.7f)) {
             MySection(stringResource(id = R.string.vehicle_filter))
-            vehicleList.forEach { vehicle ->
-                MySectionData("Movil ${vehicle.numero}")
+            if (personalList.isEmpty()) {
+                MySectionData("-")
+            } else {
+                vehicleList.forEach { vehicle ->
+                    MySectionData("Movil ${vehicle.numero}")
+                }
             }
         }
         Column(modifier = Modifier.weight(0.3f)) {
             MySection(stringResource(id = R.string.plate_filter))
-            vehicleList.forEach { vehicle ->
-                MySectionData(vehicle.placa)
+            if (personalList.isEmpty()) {
+                MySectionData("-")
+            } else {
+                vehicleList.forEach { vehicle ->
+                    MySectionData(vehicle.placa)
+                }
             }
         }
     }

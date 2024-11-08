@@ -218,7 +218,7 @@ fun DetailReportContainer(
                 .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
-            ReportHeader(solicitudDTODetail.nroSolicitud, solicitudDTODetail.fechaSolicitud)
+            ReportHeader(solicitudDTODetail.nroSolicitud, solicitudDTODetail.fechaSolicitud, solicitudDTODetail.horaSolicitud)
             Spacer(modifier = Modifier.height(10.dp))
             ReportDetails(
                 solicitudDTODetail.solicitante,
@@ -275,7 +275,7 @@ fun ReportDetails(
 }
 
 @Composable
-fun ReportHeader(incidentNumber: String, date: String) {
+fun ReportHeader(incidentNumber: String, date: String, hour: String) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -288,7 +288,7 @@ fun ReportHeader(incidentNumber: String, date: String) {
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = date,
+            text = "$date $hour",
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp

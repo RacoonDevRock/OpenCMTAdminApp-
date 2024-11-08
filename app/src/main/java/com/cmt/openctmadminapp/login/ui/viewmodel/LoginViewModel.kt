@@ -44,7 +44,7 @@ class LoginViewModel @Inject constructor(
                 tokenProvider.saveToken(response.token)
                 _loginState.value = LoginState.Success(response)
             } catch (e: Exception) {
-                _loginState.value = LoginState.Error("Error inesperado")
+                _loginState.value = LoginState.Error("Credenciales incorrectas")
                 Log.e("AuthError", "Error inesperado durante la autenticación", e)
             }
         }

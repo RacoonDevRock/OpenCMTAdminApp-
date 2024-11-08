@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class SolicitudDTODetail(
     @SerializedName("nroSolicitud") val nroSolicitud: String,
     @SerializedName("fechaSolicitud") val fechaSolicitud: String,
+    @SerializedName("horaSolicitud") val horaSolicitud: String,
     @SerializedName("solicitante") val solicitante: String,
     @SerializedName("identificacion") val identificacion: String,
     @SerializedName("domicilio") val domicilio: String,
