@@ -12,11 +12,13 @@ val backgroundWhite = Color(0xFFFFFFFF)
 val backgroundCMT = Color(0xFFE5E5E5)
 val containerData = Color(0xFFD9D9D9)
 val ButtonColor = Color(0xFF848688)
+val DisabledButtonColor  = Color(0xFFB0B1B3)
 
 private val DarkColorScheme = darkColorScheme(
     background = backgroundCMT,
     primaryContainer = containerData,
     tertiary = ButtonColor,
+    onTertiary = DisabledButtonColor,
     secondaryContainer = backgroundWhite,
     primary = colorTextTitle
 )
@@ -25,6 +27,7 @@ private val LightColorScheme = lightColorScheme(
     background = backgroundCMT,
     primaryContainer = containerData,
     tertiary = ButtonColor,
+    onTertiary = DisabledButtonColor,
     secondaryContainer = backgroundWhite,
     primary = colorTextTitle
 

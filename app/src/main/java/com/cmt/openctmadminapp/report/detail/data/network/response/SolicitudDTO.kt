@@ -13,6 +13,7 @@ data class SolicitudDTODetail(
     @SerializedName("telefono") val telefono: String,
     @SerializedName("motivo") val motivo: String,
     @SerializedName("nroIncidente") val nroIncidente: String,
+    @SerializedName("estado") val estado: String,
     @SerializedName("_links") val links: Links
 )
 

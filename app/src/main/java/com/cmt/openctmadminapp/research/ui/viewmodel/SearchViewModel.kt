@@ -28,25 +28,62 @@ class SearchViewModel @Inject constructor(private val searchRepository: SearchRe
     var estadoStr by mutableStateOf<String?>(null)
     var periodoStr by mutableStateOf<String?>(null)
 
+    private var currentPage = 0
+    private var isEndReached = false
+    private val pageSize = 10
+
     init {
         loadAllSolicitudes()
     }
 
     fun loadAllSolicitudes() {
+        // Reiniciar la paginación si se inicia una nueva búsqueda
+        currentPage = 0
+        isEndReached = false
+        _uiState.value = _uiState.value.copy(solicitudes = emptyList())  // Limpiar la lista
+        loadNextPage()  // Cargar la primera página
+    }
+
+    fun refreshSolicitud() {
+        // Refrescar incidentes reiniciando el estado
+        currentPage = 0
+        isEndReached = false
+        _uiState.value = _uiState.value.copy(solicitudes = emptyList(), isLoading = true)
+        loadNextPage()
+    }
+
+    fun loadNextPage() {
+        if (isEndReached) return
+
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = _uiState.value.copy(isLoading = true)
             runCatching {
-                searchRepository.searchSolicitudes(estadoStr, periodoStr)
+                searchRepository.searchSolicitudes(estadoStr, periodoStr, currentPage, pageSize)
             }.onSuccess { response ->
                 if (response.isSuccessful) {
-                    _uiState.value = SolicitudUIState(response.body() ?: emptyList())
+                    val newSolicitudes = response.body() ?: emptyList()
+                    _uiState.value = _uiState.value.copy(
+                        solicitudes = _uiState.value.solicitudes + newSolicitudes, // Agregar incidentes
+                        isLoading = false
+                    )
+                    currentPage++
+
+                    if (newSolicitudes.size < pageSize) {
+                        isEndReached = true
+                    }
+
                 } else {
-                    _uiState.value = _uiState.value.copy(errorMessage = "Error en la búsqueda")
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Error en la búsqueda",
+                        isLoading = false
+                    )
                 }
             }.onFailure {
-                _uiState.value = _uiState.value.copy(errorMessage = "Error de red")
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error de red",
+                    isLoading = false
+                )
             }
-            _uiState.value = _uiState.value.copy(isLoading = false)
         }
     }
 }

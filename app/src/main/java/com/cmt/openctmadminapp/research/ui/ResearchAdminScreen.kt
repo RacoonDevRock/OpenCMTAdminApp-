@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -35,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,6 +67,7 @@ fun ResearchAdminScreen(
     val uiState by searchViewModel.uiState.collectAsState()
     var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
+    val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
         searchViewModel.loadAllSolicitudes()
@@ -100,7 +103,8 @@ fun ResearchAdminScreen(
                         Spacer(modifier = Modifier.height(20.dp))
 
                         LazyColumn(
-                            Modifier
+                            state = listState,
+                            modifier = Modifier
                                 .fillMaxSize()
                                 .weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -138,6 +142,18 @@ fun ResearchAdminScreen(
                         myIconButton = Icons.Default.KeyboardArrowUp,
                         modifier = Modifier.align(Alignment.BottomCenter)
                     )
+                }
+
+                LaunchedEffect(listState) {
+                    snapshotFlow {
+                        listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                    }.collect { lastVisibleItem ->
+                        lastVisibleItem?.let {
+                            if (it == uiState.solicitudes.size - 1 && !uiState.isLoading) {
+                                searchViewModel.loadNextPage()
+                            }
+                        }
+                    }
                 }
             }
         }

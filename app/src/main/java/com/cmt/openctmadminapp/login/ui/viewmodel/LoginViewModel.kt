@@ -11,13 +11,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val repository: LoginRepository,
     private val validateCredentialsUseCase: ValidateCredentialsUseCase,
-    private val tokenProvider: TokenProvider
+    private val tokenProvider: TokenProvider,
 ) : ViewModel() {
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
@@ -41,10 +42,16 @@ class LoginViewModel @Inject constructor(
             try {
                 val response = repository.login(usuario, contrasenia)
                 Log.d("AuthToken", "Token recibido")
-                tokenProvider.saveToken(response.token)
+                tokenProvider.saveToken(response.response)
                 _loginState.value = LoginState.Success(response)
+            } catch (e: HttpException) {
+                _loginState.value = when (e.code()) {
+                    401 -> LoginState.Error("Credenciales incorrectas")
+                    500 -> LoginState.Error("Error en el servidor")
+                    else -> LoginState.Error("Error desconocido (${e.code()})")
+                }
             } catch (e: Exception) {
-                _loginState.value = LoginState.Error("Credenciales incorrectas")
+                _loginState.value = LoginState.Error("Error de conexión")
                 Log.e("AuthError", "Error inesperado durante la autenticación", e)
             }
         }

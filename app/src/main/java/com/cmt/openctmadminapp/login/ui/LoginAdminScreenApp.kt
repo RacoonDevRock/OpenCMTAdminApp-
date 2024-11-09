@@ -37,9 +37,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -82,7 +85,7 @@ fun LoginAdminScreen(
             onLoginClick = { viewModel.login(email, password) }
         )
 
-        when (loginState) {
+        when (val state = loginState) {
             is LoginState.Loading -> {
                 LoadingScreen()
             }
@@ -91,15 +94,11 @@ fun LoginAdminScreen(
                     navigationController.navigate(Routes.ResearchAdminScreen.route)
                 }
             }
-            is LoginState.ValidationError -> {
-                val message = (loginState as LoginState.ValidationError).message
-                toast?.cancel()
-                toast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply { show() }
-            }
             is LoginState.Error -> {
-                val message = (loginState as LoginState.Error).message
-                toast?.cancel()
-                toast = Toast.makeText(context, message, Toast.LENGTH_LONG).apply { show() }
+                LaunchedEffect(state.message) {
+                    toast?.cancel()
+                    toast = Toast.makeText(context, state.message, Toast.LENGTH_LONG).apply { show() }
+                }
             }
             else -> { /* Do nothing for Idle state */ }
         }
@@ -201,6 +200,15 @@ fun PasswordField(
     onValueChange: (String) -> Unit,
 ) {
     var passwordStateVisibility by remember { mutableStateOf(false) }
+    var showLastCharacter by remember { mutableStateOf(false) }
+
+    LaunchedEffect(value) {
+        if (value.isNotEmpty()) {
+            showLastCharacter = true;
+            kotlinx.coroutines.delay(1000)
+            showLastCharacter = false
+        }
+    }
 
     TextField(
         value = value,
@@ -239,6 +247,27 @@ fun PasswordField(
             }
         },
         shape = RoundedCornerShape(25.dp),
-        visualTransformation = if (passwordStateVisibility) VisualTransformation.None else PasswordVisualTransformation()
+        visualTransformation = when {
+            passwordStateVisibility -> VisualTransformation.None
+            showLastCharacter && value.isNotEmpty() -> LastCharacterVisibleTransformation
+            else -> PasswordVisualTransformation()
+        }
     )
+}
+
+object LastCharacterVisibleTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val transformedText = buildString {
+            if (text.isNotEmpty()) {
+                append("•".repeat(text.length - 1))
+                append(text.last())
+            }
+        }
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int = offset.coerceAtMost(transformedText.length)
+            override fun transformedToOriginal(offset: Int): Int = offset.coerceAtMost(text.length)
+        }
+        return TransformedText(AnnotatedString(transformedText), offsetMapping)
+    }
 }

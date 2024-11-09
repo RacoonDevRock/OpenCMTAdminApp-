@@ -22,6 +22,8 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FileCopy
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -46,7 +49,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
-import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
 import com.cmt.openctmadminapp.report.detail.data.network.response.SolicitudDTODetail
 import com.cmt.openctmadminapp.report.detail.ui.viewmodel.DetailViewModel
@@ -147,6 +149,8 @@ fun ReportBoxBottom(
     onNavigateBack: () -> Unit,
 ) {
     val context = LocalContext.current
+    val solicitudDTODetail by detailViewModel.solicitudDetail.collectAsState()
+    val isPending = solicitudDTODetail?.estado == "PENDIENTE"
 
     Box(
         modifier = Modifier
@@ -174,7 +178,8 @@ fun ReportBoxBottom(
             Spacer(modifier = Modifier.height(25.dp))
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                MyButton(
+                MyButtonReport(
+                    enable = isPending,
                     {
                         detailViewModel.approveSolicitud(nroSolicitud) { onNavigateBack() }
                         Toast.makeText(context, "Solicitud aprobada", Toast.LENGTH_SHORT).show()
@@ -184,7 +189,8 @@ fun ReportBoxBottom(
                     myIconButton = Icons.Default.Check
                 )
                 Spacer(modifier = Modifier.width(5.dp))
-                MyButton(
+                MyButtonReport(
+                    enable = isPending,
                     {
                         detailViewModel.rejectSolicitud(nroSolicitud) { onNavigateBack() }
                         Toast.makeText(context, "Solicitud rechazada", Toast.LENGTH_SHORT).show()
@@ -194,6 +200,37 @@ fun ReportBoxBottom(
                     myIconButton = Icons.Default.Clear
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun MyButtonReport(
+    enable: Boolean,
+    navigate: () -> Unit,
+    textButton: String,
+    myIconButton: ImageVector,
+    modifier: Modifier = Modifier,
+) {
+    Button(
+        enabled = enable,
+        onClick = {
+            navigate()
+        },
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(
+            contentColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            disabledContainerColor = MaterialTheme.colorScheme.onTertiary,
+            disabledContentColor = Color(0xFFD3D3D3)
+        )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(text = textButton, fontSize = 21.sp)
+            Icon(myIconButton, contentDescription = "navigate")
         }
     }
 }
