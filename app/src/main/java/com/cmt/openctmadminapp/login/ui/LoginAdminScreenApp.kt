@@ -128,7 +128,7 @@ fun RegisterSection(
         ) {
             Text(
                 text = stringResource(id = R.string.login_description),
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
@@ -171,9 +171,8 @@ fun EmailField(
             Text(
                 text = label,
                 fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(start = 4.dp),
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.onTertiary
             )
         },
         maxLines = 1,
@@ -182,12 +181,13 @@ fun EmailField(
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
-            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedTrailingIconColor = MaterialTheme.colorScheme.tertiary,
-            focusedTextColor = MaterialTheme.colorScheme.primary,
-            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedTextColor = MaterialTheme.colorScheme.onTertiary,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onTertiary,
+            focusedTextColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.onTertiaryContainer,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
+            cursorColor = MaterialTheme.colorScheme.onTertiaryContainer,
         ),
         shape = RoundedCornerShape(25.dp)
     )
@@ -218,9 +218,8 @@ fun PasswordField(
             Text(
                 text = label,
                 fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(start = 4.dp),
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.onTertiary
             )
         },
         maxLines = 1,
@@ -229,12 +228,13 @@ fun PasswordField(
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
-            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedTrailingIconColor = MaterialTheme.colorScheme.tertiary,
-            focusedTextColor = MaterialTheme.colorScheme.primary,
-            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedTextColor = MaterialTheme.colorScheme.onTertiary,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onTertiary,
+            focusedTextColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.onTertiaryContainer,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
+            cursorColor = MaterialTheme.colorScheme.onTertiaryContainer,
         ),
         trailingIcon = {
             val imagen = if (passwordStateVisibility) {

@@ -1,5 +1,6 @@
 package com.cmt.openctmadminapp.report.incidentToDetail.ui
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,26 +10,31 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
+import com.cmt.openctmadminapp.core.ui.header.FAB
+import com.cmt.openctmadminapp.core.ui.header.HeaderSection
 import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
-import com.cmt.openctmadminapp.report.detail.ui.HeaderDetailAndTotal
 import com.cmt.openctmadminapp.report.detail.ui.MySection
 import com.cmt.openctmadminapp.report.detail.ui.MySectionData
 import com.cmt.openctmadminapp.report.incidentToDetail.data.network.response.IncidenteDTODetail
@@ -41,6 +47,7 @@ fun TotalReportAdminScreen(
     modifier: Modifier = Modifier,
     navigationController: NavHostController,
     nroSolicitud: String,
+    onThemeChange: (Int) -> Unit,
     detailIncidentViewModel: DetailIncidentViewModel = hiltViewModel(),
 ) {
     val isLoading by detailIncidentViewModel.isLoading.collectAsState()
@@ -50,45 +57,64 @@ fun TotalReportAdminScreen(
         detailIncidentViewModel.loadIncidentDetail(nroSolicitud)
     }
 
-    Box(
+    ConstraintLayout(
         modifier
             .fillMaxSize()
-            .background(Color(0xFFE5E5E5))
+            .background(MaterialTheme.colorScheme.background)
     ) {
+        val (header, content) = createRefs()
 
-        if (isLoading) {
-            LoadingScreen()
-        } else {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                HeaderDetailAndTotal(navigationController)
+        HeaderSection(
+            Modifier.constrainAs(header) { top.linkTo(parent.top) },
+            true,
+            navigationController
+        )
 
-                Spacer(modifier = Modifier.height(20.dp))
-
+        Box(modifier = Modifier.constrainAs(content) {
+            top.linkTo(header.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(parent.bottom)
+            height = Dimension.fillToConstraints
+        }) {
+            if (isLoading) {
+                LoadingScreen()
+            } else {
                 incidentDetail?.let { detail ->
-                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
-                        DetailReport(detail)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        DetailReport(modifier, detail)
                     }
                 }
             }
         }
+
+        FAB(
+            isDarkTheme = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES,
+            onThemeChange = onThemeChange) { }
+
+
     }
 }
 
 @Composable
-fun DetailReport(incidenteDTODetail: IncidenteDTODetail) {
+fun DetailReport(modifier: Modifier = Modifier, incidenteDTODetail: IncidenteDTODetail) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
+            .fillMaxSize()
             .padding(horizontal = 25.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
+        val scrollState = rememberScrollState()
+
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(26.dp)
+                .verticalScroll(scrollState)
         ) {
             ReportDetailHeader(incidenteDTODetail.nroIncidente, incidenteDTODetail.fechaHora)
             Spacer(modifier = Modifier.height(15.dp))
@@ -158,9 +184,10 @@ fun ReportDetailsBody(
             if (personalList.isEmpty()) {
                 MySectionData("-")
             } else {
-            personalList.forEach { personal ->
-                MySectionData(personal.cargo)
-            }}
+                personalList.forEach { personal ->
+                    MySectionData(personal.cargo)
+                }
+            }
         }
     }
 

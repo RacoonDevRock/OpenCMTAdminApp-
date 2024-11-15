@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.constraintlayout)
 
     // Material Icons Extended
     implementation(libs.androidx.compose.material)
@@ -73,6 +74,7 @@ dependencies {
 
     // Hilt para la inyección de dependencias
     implementation(libs.hilt.android)
+    implementation(libs.androidx.appcompat)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 

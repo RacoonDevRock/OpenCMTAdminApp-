@@ -1,8 +1,9 @@
 package com.cmt.openctmadminapp.research.ui
 
-import androidx.compose.foundation.Image
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,27 +43,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
+import com.cmt.openctmadminapp.core.ui.header.FAB
+import com.cmt.openctmadminapp.core.ui.header.HeaderSection
 import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
 import com.cmt.openctmadminapp.research.ui.viewmodel.SearchViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
-//@Preview(showSystemUi = true)
 @Composable
 fun ResearchAdminScreen(
     modifier: Modifier,
     navigationController: NavHostController,
+    onThemeChange: (Int) -> Unit,
     searchViewModel: SearchViewModel = hiltViewModel(),
 ) {
     val uiState by searchViewModel.uiState.collectAsState()
@@ -73,40 +77,56 @@ fun ResearchAdminScreen(
         searchViewModel.loadAllSolicitudes()
     }
 
+    ConstraintLayout(modifier = modifier.fillMaxSize()) {
+        val (header, list, button) = createRefs()
 
-    SwipeRefresh(
-        state = swipeRefreshState,
-        onRefresh = { searchViewModel.loadAllSolicitudes() }) {
-        when {
-            uiState.isLoading && !swipeRefreshState.isRefreshing -> {
-                LoadingScreen()
-            }
+        HeaderSection(
+            Modifier.constrainAs(header) { top.linkTo(parent.top) },
+            false,
+            navigationController
+        )
 
-            uiState.errorMessage != null -> {
-                uiState.errorMessage?.let { errorMessage ->
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = errorMessage,
-                            color = Color.Red,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(list) {
+                    top.linkTo(header.bottom)
+                    bottom.linkTo(button.top)
+                    height = Dimension.fillToConstraints
+                },
+            verticalArrangement = Arrangement.Center
+        ) {
+
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = { searchViewModel.loadAllSolicitudes() },
+                modifier = Modifier.weight(1f)
+            ) {
+                when {
+                    uiState.isLoading && !swipeRefreshState.isRefreshing -> {
+                        LoadingScreen()
                     }
-                }
-            }
 
-            else -> {
+                    uiState.errorMessage != null -> {
+                        uiState.errorMessage?.let { errorMessage ->
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = errorMessage,
+                                    color = Color.Red,
+                                    modifier = Modifier.align(Alignment.Center),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
 
-                Box(modifier = modifier.fillMaxSize()) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        HeaderSection()
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
+                    else -> {
                         LazyColumn(
                             state = listState,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .weight(1f),
+                            modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             items(uiState.solicitudes) { solicitud ->
@@ -126,37 +146,46 @@ fun ResearchAdminScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(75.dp))
-
-                    }
-
-                    if (isBottomSheetVisible) {
-                        BottomSheetWithContent(
-                            searchViewModel,
-                            onDismiss = { isBottomSheetVisible = false })
-                    }
-
-                    MyButton(
-                        navigate = { isBottomSheetVisible = true },
-                        textButton = stringResource(id = R.string.message_filter),
-                        myIconButton = Icons.Default.KeyboardArrowUp,
-                        modifier = Modifier.align(Alignment.BottomCenter)
-                    )
-                }
-
-                LaunchedEffect(listState) {
-                    snapshotFlow {
-                        listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                    }.collect { lastVisibleItem ->
-                        lastVisibleItem?.let {
-                            if (it == uiState.solicitudes.size - 1 && !uiState.isLoading) {
-                                searchViewModel.loadNextPage()
+                        LaunchedEffect(listState) {
+                            snapshotFlow {
+                                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                            }.collect { lastVisibleItem ->
+                                lastVisibleItem?.let {
+                                    if (it == uiState.solicitudes.size - 1 && !uiState.isLoading) {
+                                        searchViewModel.loadNextPage()
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(80.dp))
+
+        FAB(
+            isDarkTheme = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES,
+            onThemeChange = onThemeChange, onMainFabClick = { isBottomSheetVisible = !isBottomSheetVisible })
+
+        if (isBottomSheetVisible) {
+            BottomSheetWithContent(
+                searchViewModel,
+                onDismiss = { isBottomSheetVisible = false })
+        }
+
+        MyButton(
+            navigate = { isBottomSheetVisible = true },
+            textButton = stringResource(id = R.string.message_filter),
+            myIconButton = Icons.Default.KeyboardArrowUp,
+            modifier = Modifier
+                .padding(bottom = 10.dp)
+                .constrainAs(button) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+        )
     }
 }
 
@@ -168,7 +197,6 @@ fun BottomSheetWithContent(searchViewModel: SearchViewModel, onDismiss: () -> Un
         modifier = Modifier
             .fillMaxWidth(),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = Color.Black,
         shape = RoundedCornerShape(topStart = 110.dp, topEnd = 110.dp)
     ) {
         BottomSheetContent(searchViewModel, onDismiss)
@@ -186,7 +214,8 @@ fun BottomSheetContent(viewModel: SearchViewModel, onDismiss: () -> Unit) {
         Text(
             text = stringResource(id = R.string.title_filter),
             fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -243,7 +272,7 @@ fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String?) -> Un
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
-                .background(color = Color.White)
+                .background(color = MaterialTheme.colorScheme.primary)
                 .align(Alignment.Center),
         ) {
             periodos.forEach { (displayText, value) ->
@@ -251,7 +280,12 @@ fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String?) -> Un
                     onPeriodoSelected(value)
                     expanded = false
                 },
-                    text = { Text(text = displayText, color = MaterialTheme.colorScheme.tertiary) }
+                    text = {
+                        Text(
+                            text = displayText,
+                            color = MaterialTheme.colorScheme.onTertiary
+                        )
+                    }
                 )
             }
         }
@@ -287,7 +321,7 @@ fun EstadoDropdown(selectedEstado: String?, onEstadoSelected: (String?) -> Unit)
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
-                .background(color = Color.White)
+                .background(color = MaterialTheme.colorScheme.primary)
                 .align(Alignment.Center)
         ) {
             estados.forEach { (displayText, value) ->
@@ -296,28 +330,15 @@ fun EstadoDropdown(selectedEstado: String?, onEstadoSelected: (String?) -> Unit)
                         onEstadoSelected(value)
                         expanded = false
                     },
-                    text = { Text(text = displayText, color = MaterialTheme.colorScheme.tertiary) }
+                    text = {
+                        Text(
+                            text = displayText,
+                            color = MaterialTheme.colorScheme.onTertiary
+                        )
+                    }
                 )
             }
         }
-    }
-}
-
-@Composable
-fun HeaderSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(140.dp)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.open_logo_small),
-            contentDescription = "Logo CMT",
-            Modifier
-                .padding(top = 30.dp)
-                .align(Alignment.Center),
-            contentScale = ContentScale.Fit
-        )
     }
 }
 
@@ -334,7 +355,7 @@ fun ReportBox(
         "ACEPTADO" -> Color(0xFF32A91D)
         "RECHAZADO" -> Color(0xFFFF9F19)
         "PENDIENTE" -> Color(0xFFD71414)
-        else -> Color.Black
+        else -> MaterialTheme.colorScheme.primary
     }
     Box(
         modifier = Modifier
@@ -342,7 +363,7 @@ fun ReportBox(
             .height(85.dp)
             .padding(start = 26.dp, end = 26.dp, bottom = 16.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .clickable { navigate() }
     ) {
         Column(
@@ -358,7 +379,7 @@ fun ReportBox(
                     text = "Solicitud N° $numberIncident",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 14.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     lineHeight = 20.sp
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -366,14 +387,14 @@ fun ReportBox(
                     text = dateIncident,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 14.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     lineHeight = 20.sp
                 )
                 Text(
                     text = hourIncident,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 14.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     lineHeight = 20.sp,
                     modifier = Modifier.padding(start = 3.dp)
                 )
@@ -409,7 +430,7 @@ fun MyTextField(
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.padding(start = 8.dp),
                 fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.onTertiary
             )
         },
         readOnly = true,
@@ -420,11 +441,13 @@ fun MyTextField(
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
-            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedTrailingIconColor = MaterialTheme.colorScheme.tertiary,
-            focusedTrailingIconColor = MaterialTheme.colorScheme.tertiary,
+            unfocusedTextColor = MaterialTheme.colorScheme.onTertiary,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onTertiary,
+            focusedTextColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.onTertiaryContainer,
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
+            cursorColor = MaterialTheme.colorScheme.onTertiaryContainer,
         ),
         shape = RoundedCornerShape(25.dp)
     )

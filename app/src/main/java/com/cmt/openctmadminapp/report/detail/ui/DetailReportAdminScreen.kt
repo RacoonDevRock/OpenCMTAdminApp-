@@ -1,7 +1,7 @@
 package com.cmt.openctmadminapp.report.detail.ui
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FileCopy
@@ -29,26 +28,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
+import com.cmt.openctmadminapp.core.ui.header.FAB
+import com.cmt.openctmadminapp.core.ui.header.HeaderSection
 import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
 import com.cmt.openctmadminapp.report.detail.data.network.response.SolicitudDTODetail
 import com.cmt.openctmadminapp.report.detail.ui.viewmodel.DetailViewModel
@@ -58,6 +58,7 @@ fun DetailReportAdminScreen(
     modifier: Modifier,
     navigationController: NavHostController,
     nroSolicitud: String,
+    onThemeChange: (Int) -> Unit,
     detailViewModel: DetailViewModel = hiltViewModel(),
 ) {
     val isLoading by detailViewModel.isLoading.collectAsState()
@@ -68,24 +69,36 @@ fun DetailReportAdminScreen(
         detailViewModel.loadSolicitudDetail(nroSolicitud)
     }
 
-    if (isLoading || isActionLoading) {
-        LoadingScreen()
-    } else {
+    ConstraintLayout(
+        modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        val (header, detail, fold) = createRefs()
 
-        Box(
-            modifier
+        HeaderSection(
+            Modifier.constrainAs(header) { top.linkTo(parent.top) },
+            true,
+            navigationController
+        )
+
+        Column(
+            modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .constrainAs(detail) {
+                    top.linkTo(header.bottom)
+                    bottom.linkTo(fold.top)
+                    height = Dimension.fillToConstraints
+                },
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                HeaderDetailAndTotal(navigationController)
 
-                Spacer(modifier = Modifier.height(20.dp))
+            if (isLoading || isActionLoading) {
+                LoadingScreen()
+            } else {
+
                 solicitudDetail?.let { detail ->
                     DetailReportContainer(
-                        Modifier.weight(1f),
+                        Modifier.fillMaxSize(),
                         {
                             navigationController.navigate(
                                 Routes.TotalReportAdminScreen.createRoute(
@@ -96,54 +109,35 @@ fun DetailReportAdminScreen(
                         detail
                     )
                 }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                ReportBoxBottom(
-                    detailViewModel,
-                    nroSolicitud
-                ) {
-                    navigationController.navigate(Routes.ResearchAdminScreen.route)
-                }
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+
+        FAB(
+            isDarkTheme = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES,
+            onThemeChange = onThemeChange) { }
+
+        ReportBoxBottom(
+            Modifier
+                .padding(top = 20.dp)
+                .constrainAs(fold) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+            detailViewModel,
+            nroSolicitud
+        ) {
+            navigationController.navigate(Routes.ResearchAdminScreen.route)
         }
     }
 }
 
 @Composable
-fun HeaderDetailAndTotal(navController: NavController) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(140.dp)
-    ) {
-        IconBack(navController, Modifier.align(Alignment.TopStart))
-        Image(
-            painter = painterResource(id = R.drawable.open_logo_small),
-            contentDescription = "Logo CMT",
-            Modifier
-                .padding(top = 30.dp)
-                .align(Alignment.Center),
-            contentScale = ContentScale.Fit
-        )
-    }
-}
-
-
-@Composable
-fun IconBack(navController: NavController, modifier: Modifier) {
-    Icon(
-        imageVector = Icons.Default.ArrowBackIosNew,
-        contentDescription = "Retroceso",
-        modifier = modifier
-            .padding(24.dp)
-            .clickable { navController.popBackStack() },
-        tint = MaterialTheme.colorScheme.tertiary
-    )
-}
-
-@Composable
 fun ReportBoxBottom(
+    modifier: Modifier = Modifier,
     detailViewModel: DetailViewModel,
     nroSolicitud: String,
     onNavigateBack: () -> Unit,
@@ -153,10 +147,10 @@ fun ReportBoxBottom(
     val isPending = solicitudDTODetail?.estado == "PENDIENTE"
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 110.dp, topEnd = 110.dp))
-            .background(Color(0xFFD9D9D9))
+            .background(MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column(
             Modifier
@@ -219,18 +213,22 @@ fun MyButtonReport(
         },
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
-            contentColor = Color.White,
-            containerColor = MaterialTheme.colorScheme.tertiary,
-            disabledContainerColor = MaterialTheme.colorScheme.onTertiary,
-            disabledContentColor = Color(0xFFD3D3D3)
+            contentColor = MaterialTheme.colorScheme.secondary,
+            containerColor = MaterialTheme.colorScheme.onSecondary,
+            disabledContentColor = MaterialTheme.colorScheme.onError,
+            disabledContainerColor = MaterialTheme.colorScheme.onErrorContainer,
         )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = textButton, fontSize = 21.sp)
-            Icon(myIconButton, contentDescription = "navigate")
+            Text(text = textButton, fontSize = 21.sp, color = MaterialTheme.colorScheme.secondary)
+            Icon(
+                myIconButton,
+                contentDescription = "navigate",
+                tint = MaterialTheme.colorScheme.secondary
+            )
         }
     }
 }
@@ -241,21 +239,27 @@ fun DetailReportContainer(
     navigate: () -> Unit,
     solicitudDTODetail: SolicitudDTODetail,
 ) {
+
     Box(
         modifier = modifier
+            .fillMaxSize()
             .padding(horizontal = 25.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
         val scrollState = rememberScrollState()
 
         Column(
             Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
+                .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 14.dp)
+                .verticalScroll(scrollState)
         ) {
-            ReportHeader(solicitudDTODetail.nroSolicitud, solicitudDTODetail.fechaSolicitud, solicitudDTODetail.horaSolicitud)
+            ReportHeader(
+                solicitudDTODetail.nroSolicitud,
+                solicitudDTODetail.fechaSolicitud,
+                solicitudDTODetail.horaSolicitud
+            )
             Spacer(modifier = Modifier.height(10.dp))
             ReportDetails(
                 solicitudDTODetail.solicitante,
@@ -274,7 +278,7 @@ fun DetailReportContainer(
                 .align(Alignment.BottomEnd)
                 .padding(8.dp)
                 .clickable { navigate() },
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.tertiary
         )
     }
 }
@@ -352,7 +356,7 @@ fun MySectionData(text: String) {
 fun MySection(text: String) {
     Text(
         text = text,
-        color = MaterialTheme.colorScheme.tertiary,
+        color = MaterialTheme.colorScheme.primary,
         fontSize = 12.sp,
         fontWeight = FontWeight.Bold,
         lineHeight = 12.sp,
