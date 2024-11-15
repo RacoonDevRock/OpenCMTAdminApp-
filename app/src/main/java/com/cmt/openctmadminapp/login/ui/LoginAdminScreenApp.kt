@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
@@ -177,6 +178,11 @@ fun EmailField(
         },
         maxLines = 1,
         singleLine = true,
+        textStyle = TextStyle(
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 14.sp,
+            lineHeight = 15.sp
+        ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), // para modificar el teclado y se adapte al fieldEmail
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
@@ -224,6 +230,11 @@ fun PasswordField(
         },
         maxLines = 1,
         singleLine = true,
+        textStyle = TextStyle(
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 14.sp,
+            lineHeight = 15.sp
+        ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), // para modificar el teclado y se adapte al fieldEmail
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,

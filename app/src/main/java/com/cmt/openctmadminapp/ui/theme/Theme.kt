@@ -6,7 +6,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.cmt.openctmadminapp.core.di.ThemePreferenceManager
 
 // COLOR TEXT
 val colorTextDark = Color(0xFFFFFFFF)
@@ -45,8 +44,6 @@ val backgroundFoldLight = Color(0xFFD9D9D9)
 // COLOR CONTAINER DATA
 val containerDataDark = Color(0xFF6C6C6C)
 val containerDataLight = Color(0xFFFFFFFF)
-
-val DisabledButtonColor  = Color(0xFFB0B1B3)
 
 private val DarkColorScheme = darkColorScheme(
     primary = colorTextDark, // texto

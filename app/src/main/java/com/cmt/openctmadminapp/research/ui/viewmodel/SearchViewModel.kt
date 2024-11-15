@@ -62,8 +62,10 @@ class SearchViewModel @Inject constructor(private val searchRepository: SearchRe
             }.onSuccess { response ->
                 if (response.isSuccessful) {
                     val newSolicitudes = response.body() ?: emptyList()
+                    val updatedList = (_uiState.value.solicitudes + newSolicitudes)
+                        .distinctBy { it.nroSolicitud }
                     _uiState.value = _uiState.value.copy(
-                        solicitudes = _uiState.value.solicitudes + newSolicitudes, // Agregar incidentes
+                        solicitudes = updatedList, // Agregar incidentes
                         isLoading = false
                     )
                     currentPage++

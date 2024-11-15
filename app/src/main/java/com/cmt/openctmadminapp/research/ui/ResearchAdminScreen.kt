@@ -32,7 +32,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -129,7 +128,7 @@ fun ResearchAdminScreen(
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            items(uiState.solicitudes) { solicitud ->
+                            items(uiState.solicitudes, key = { it.nroSolicitud }) { solicitud ->
                                 ReportBox(
                                     {
                                         navigationController.navigate(
@@ -166,7 +165,8 @@ fun ResearchAdminScreen(
 
         FAB(
             isDarkTheme = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES,
-            onThemeChange = onThemeChange, onMainFabClick = { isBottomSheetVisible = !isBottomSheetVisible })
+            onThemeChange = onThemeChange,
+            onMainFabClick = { isBottomSheetVisible = !isBottomSheetVisible })
 
         if (isBottomSheetVisible) {
             BottomSheetWithContent(

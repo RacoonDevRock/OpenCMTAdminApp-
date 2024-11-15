@@ -1,6 +1,5 @@
 package com.cmt.openctmadminapp.core.ui.header
 
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -16,11 +15,10 @@ import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,9 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.cmt.openctmadminapp.core.di.ThemePreferenceManager
 
 @Composable
 fun FAB(isDarkTheme: Boolean, onThemeChange: (Int) -> Unit, onMainFabClick: () -> Unit) {
@@ -51,7 +47,7 @@ fun FAB(isDarkTheme: Boolean, onThemeChange: (Int) -> Unit, onMainFabClick: () -
             Icon(
                 Icons.Default.Accessibility,
                 contentDescription = "icono de accesibilidad",
-                tint = Color.Black
+                tint = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -83,12 +79,12 @@ fun FAB(isDarkTheme: Boolean, onThemeChange: (Int) -> Unit, onMainFabClick: () -
                             .padding(bottom = 8.dp)
                             .size(40.dp),
                         shape = CircleShape,
-                        containerColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     ) {
                         Icon(
                             if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
                             contentDescription = "Cambiar tema",
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
 
@@ -98,12 +94,12 @@ fun FAB(isDarkTheme: Boolean, onThemeChange: (Int) -> Unit, onMainFabClick: () -
                             .padding(bottom = 8.dp)
                             .size(40.dp),
                         shape = CircleShape,
-                        containerColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     ) {
                         Icon(
                             Icons.Default.FormatSize,
                             contentDescription = "icono de tamaño de texto",
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
