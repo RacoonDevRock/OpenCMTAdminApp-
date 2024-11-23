@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,9 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,6 +47,7 @@ fun TotalReportAdminScreen(
     nroSolicitud: String,
     onThemeChange: (Int) -> Unit,
     detailIncidentViewModel: DetailIncidentViewModel = hiltViewModel(),
+    onTypographyChange: (Typography) -> Unit
 ) {
     val isLoading by detailIncidentViewModel.isLoading.collectAsState()
     val incidentDetail by detailIncidentViewModel.incidentDetail.collectAsState()
@@ -92,9 +92,11 @@ fun TotalReportAdminScreen(
 
         FAB(
             isDarkTheme = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES,
-            onThemeChange = onThemeChange) { }
-
-
+            onThemeChange = onThemeChange,
+            { },
+            currentTypography = MaterialTheme.typography,
+            onTypographyChange = onTypographyChange
+        )
     }
 }
 
@@ -116,7 +118,7 @@ fun DetailReport(modifier: Modifier = Modifier, incidenteDTODetail: IncidenteDTO
                 .verticalScroll(scrollState)
         ) {
             ReportDetailHeader(incidenteDTODetail.nroIncidente, incidenteDTODetail.fechaHora)
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             ReportDetailsBody(
                 incidenteDTODetail.tipoIncidente,
                 incidenteDTODetail.zona,
@@ -225,16 +227,14 @@ fun ReportDetailHeader(incidentNumber: String, date: String) {
     ) {
         Text(
             text = "Incidente N° $incidentNumber",
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = date,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

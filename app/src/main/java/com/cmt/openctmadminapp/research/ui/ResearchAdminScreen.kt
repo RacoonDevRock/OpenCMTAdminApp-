@@ -30,6 +30,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,8 +45,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,6 +66,7 @@ fun ResearchAdminScreen(
     modifier: Modifier,
     navigationController: NavHostController,
     onThemeChange: (Int) -> Unit,
+    onTypographyChange: (Typography) -> Unit,
     searchViewModel: SearchViewModel = hiltViewModel(),
 ) {
     val uiState by searchViewModel.uiState.collectAsState()
@@ -98,8 +100,7 @@ fun ResearchAdminScreen(
 
             SwipeRefresh(
                 state = swipeRefreshState,
-                onRefresh = { searchViewModel.loadAllSolicitudes() },
-                modifier = Modifier.weight(1f)
+                onRefresh = { searchViewModel.loadAllSolicitudes() }
             ) {
                 when {
                     uiState.isLoading && !swipeRefreshState.isRefreshing -> {
@@ -122,11 +123,25 @@ fun ResearchAdminScreen(
                         }
                     }
 
+                    uiState.solicitudes.isEmpty() -> { // Mostrar mensaje cuando no hay datos
+                        Box(
+                            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No se encontraron incidentes",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
                     else -> {
                         LazyColumn(
                             state = listState,
                             modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             items(uiState.solicitudes, key = { it.nroSolicitud }) { solicitud ->
                                 ReportBox(
@@ -166,7 +181,10 @@ fun ResearchAdminScreen(
         FAB(
             isDarkTheme = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES,
             onThemeChange = onThemeChange,
-            onMainFabClick = { isBottomSheetVisible = !isBottomSheetVisible })
+            onMainFabClick = { isBottomSheetVisible = !isBottomSheetVisible },
+            currentTypography = MaterialTheme.typography,
+            onTypographyChange = onTypographyChange
+        )
 
         if (isBottomSheetVisible) {
             BottomSheetWithContent(
@@ -283,7 +301,8 @@ fun PeriodoDropdown(selectedPeriodo: String?, onPeriodoSelected: (String?) -> Un
                     text = {
                         Text(
                             text = displayText,
-                            color = MaterialTheme.colorScheme.onTertiary
+                            color = MaterialTheme.colorScheme.onTertiary,
+                            style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 )
@@ -333,7 +352,8 @@ fun EstadoDropdown(selectedEstado: String?, onEstadoSelected: (String?) -> Unit)
                     text = {
                         Text(
                             text = displayText,
-                            color = MaterialTheme.colorScheme.onTertiary
+                            color = MaterialTheme.colorScheme.onTertiary,
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
                 )
@@ -357,57 +377,62 @@ fun ReportBox(
         "PENDIENTE" -> Color(0xFFD71414)
         else -> MaterialTheme.colorScheme.primary
     }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(85.dp)
-            .padding(start = 26.dp, end = 26.dp, bottom = 16.dp)
+            .padding(horizontal = 25.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .clickable { navigate() }
     ) {
         Column(
-            Modifier
-                .fillMaxSize()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(12.dp)
         ) {
             Row(
                 Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Solicitud N° $numberIncident",
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 14.sp,
+                    text = "N° $numberIncident",
+                    style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.primary,
-                    lineHeight = 20.sp
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = dateIncident,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    lineHeight = 20.sp
-                )
-                Text(
-                    text = hourIncident,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    lineHeight = 20.sp,
-                    modifier = Modifier.padding(start = 3.dp)
-                )
+
+                Row {
+                    Text(
+                        text = dateIncident,
+                        style = MaterialTheme.typography.displaySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = hourIncident,
+                        style = MaterialTheme.typography.displaySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
-            Spacer(modifier = Modifier.weight(1f))
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = statusIncident,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.displaySmall,
                 color = statusColor,
-                lineHeight = 20.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -428,8 +453,7 @@ fun MyTextField(
             Text(
                 text = placeholder,
                 fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(start = 8.dp),
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onTertiary
             )
         },

@@ -26,10 +26,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,13 +43,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
+import com.cmt.openctmadminapp.core.ui.form.ConfirmationDialog
 import com.cmt.openctmadminapp.core.ui.header.FAB
 import com.cmt.openctmadminapp.core.ui.header.HeaderSection
 import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
@@ -59,6 +63,7 @@ fun DetailReportAdminScreen(
     nroSolicitud: String,
     onThemeChange: (Int) -> Unit,
     detailViewModel: DetailViewModel = hiltViewModel(),
+    onTypographyChange: (Typography) -> Unit,
 ) {
     val isLoading by detailViewModel.isLoading.collectAsState()
     val isActionLoading by detailViewModel.isActionLoading.collectAsState()
@@ -89,6 +94,8 @@ fun DetailReportAdminScreen(
                     bottom.linkTo(fold.top)
                     height = Dimension.fillToConstraints
                 },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
 
             if (isLoading || isActionLoading) {
@@ -97,7 +104,7 @@ fun DetailReportAdminScreen(
 
                 solicitudDetail?.let { detail ->
                     DetailReportContainer(
-                        Modifier.fillMaxSize(),
+                        Modifier.fillMaxWidth(),
                         {
                             navigationController.navigate(
                                 Routes.TotalReportAdminScreen.createRoute(
@@ -116,7 +123,11 @@ fun DetailReportAdminScreen(
 
         FAB(
             isDarkTheme = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES,
-            onThemeChange = onThemeChange) { }
+            onThemeChange = onThemeChange,
+            { },
+            currentTypography = MaterialTheme.typography,
+            onTypographyChange = onTypographyChange
+        )
 
         ReportBoxBottom(
             Modifier
@@ -162,7 +173,7 @@ fun ReportBoxBottom(
                 text = stringResource(id = R.string.approve_report_description),
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -171,6 +182,7 @@ fun ReportBoxBottom(
             Spacer(modifier = Modifier.height(25.dp))
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                // aprueba solicitud
                 MyButtonReport(
                     enable = isPending,
                     {
@@ -182,6 +194,7 @@ fun ReportBoxBottom(
                     myIconButton = Icons.Default.Check
                 )
                 Spacer(modifier = Modifier.width(5.dp))
+                //rechazasolicitud
                 MyButtonReport(
                     enable = isPending,
                     {
@@ -205,10 +218,27 @@ fun MyButtonReport(
     myIconButton: ImageVector,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+
+    if (showDialog) {
+        ConfirmationDialog(
+            onConfirm = {
+                showDialog = false
+                navigate()
+            },
+            onDismiss = { showDialog = false },
+            text = "¿Está seguro de que desea $textButton?"
+        )
+    }
+
     Button(
         enabled = enable,
         onClick = {
-            navigate()
+            showDialog = true
+            if (!enable) {
+                Toast.makeText(context, "La solicitud ya fue atendida.", Toast.LENGTH_SHORT).show()
+            }
         },
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
@@ -222,7 +252,11 @@ fun MyButtonReport(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = textButton, fontSize = 21.sp, color = MaterialTheme.colorScheme.secondary)
+            Text(
+                text = textButton,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.secondary
+            )
             Icon(
                 myIconButton,
                 contentDescription = "navigate",
@@ -241,7 +275,7 @@ fun DetailReportContainer(
 
     Box(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(horizontal = 25.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
@@ -316,23 +350,32 @@ fun ReportDetails(
 
 @Composable
 fun ReportHeader(incidentNumber: String, date: String, hour: String) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-    ) {
+    Column(Modifier.fillMaxWidth()) {
         Text(
-            text = "Solicitud N° $incidentNumber",
+            text = "Solicitud",
+            style = MaterialTheme.typography.displaySmall,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
-            fontSize = 14.sp
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = "$date $hour",
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp
-        )
+        Row(
+            Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = "N° $incidentNumber",
+                style = MaterialTheme.typography.displaySmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = "$date $hour",
+                style = MaterialTheme.typography.displaySmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+            )
+        }
     }
 }
 
@@ -340,13 +383,12 @@ fun ReportHeader(incidentNumber: String, date: String, hour: String) {
 fun MySectionData(text: String) {
     Text(
         text = text,
-        fontSize = 14.sp,
-        fontWeight = FontWeight.ExtraBold,
+        style = MaterialTheme.typography.displaySmall,
         textAlign = TextAlign.Justify,
         color = MaterialTheme.colorScheme.primary,
-        lineHeight = 17.sp,
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = 1.dp)
             .padding(bottom = 5.dp)
     )
 }
@@ -356,9 +398,8 @@ fun MySection(text: String) {
     Text(
         text = text,
         color = MaterialTheme.colorScheme.primary,
-        fontSize = 12.sp,
+        style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Bold,
-        lineHeight = 12.sp,
         modifier = Modifier.fillMaxWidth()
     )
 }

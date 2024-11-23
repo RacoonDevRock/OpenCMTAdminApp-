@@ -2,6 +2,7 @@ package com.cmt.openctmadminapp.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -19,7 +20,7 @@ val colorButtonDark = Color(0xFF252525)
 val colorButtonLight= Color(0xFF848688)
 
 // COLOR TEXT BUTTON DISABLED
-val colorTextButtonDisableDark = Color(0xFFB3B3B3)
+val colorTextButtonDisableDark = Color(0xFFAFB1B3)
 val colorTextButtonDisableLight = Color(0xFFCACACA)
 
 // COLOR BUTTON DISABLED
@@ -86,13 +87,14 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun OpenCTMAdminAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    typography: Typography = NormalTypography,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = typography,
         content = content
     )
 }

@@ -47,4 +47,15 @@
     <!-- No Internet -->
     <string name="message_no_internet">No tienes conexión a Internet.</string>
     <string name="button_no_internet">Reintentar</string>
+
+    <!-- Diagnostic Form -->
+    <string name="diagnostic_form_title">Formulario de Diagnóstico</string>
+    <string name="question_fatigue">¿Sufres de cansancio o fatiga visual?</string>
+    <string name="question_astigmatism">¿Sufre de astigmatismo o miopía?</string>
+    <string name="question_reading_difficulty">¿Ha tenido dificultad en leer este cuestionario?</string>
+    <string name="ready">Listo</string>
+
+    <!-- Report Options -->
+    <string name="confirm_button">Confirmar</string>
+    <string name="reject_button">Cancelar</string>
 </resources>

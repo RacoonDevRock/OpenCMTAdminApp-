@@ -5,13 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
@@ -34,12 +32,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -47,7 +47,6 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
@@ -58,7 +57,6 @@ import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
 import com.cmt.openctmadminapp.login.ui.viewmodel.LoginState
 import com.cmt.openctmadminapp.login.ui.viewmodel.LoginViewModel
 
-//@Preview(showSystemUi = true)
 @Composable
 fun LoginAdminScreen(
     modifier: Modifier,
@@ -69,6 +67,7 @@ fun LoginAdminScreen(
     val loginState by viewModel.loginState.collectAsState()
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
 
     var toast: Toast? = null
 
@@ -83,7 +82,8 @@ fun LoginAdminScreen(
             password = password,
             onEmailChange = { email = it },
             onPasswordChange = { password = it },
-            onLoginClick = { viewModel.login(email, password) }
+            onLoginClick = { viewModel.login(email, password) },
+            focusManager
         )
 
         when (val state = loginState) {
@@ -113,42 +113,43 @@ fun RegisterSection(
     password: String,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    focusManager: FocusManager
 ) {
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 110.dp, topEnd = 110.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center
     ) {
         Column(
-            Modifier.fillMaxSize(),
+            Modifier.width(300.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(25.dp)
         ) {
             Text(
                 text = stringResource(id = R.string.login_description),
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                lineHeight = 20.sp,
-                modifier = Modifier.padding(horizontal = 50.dp)
+                style = MaterialTheme.typography.titleLarge
             )
-            Spacer(modifier = Modifier.height(25.dp))
             EmailField(
                 label = stringResource(id = R.string.login_email_field),
                 email,
-                onEmailChange
+                onEmailChange,
+                onNext = {
+                    focusManager.moveFocus(
+                        FocusDirection.Next
+                    )
+                }
             )
-            Spacer(modifier = Modifier.height(25.dp))
             PasswordField(
                 label = stringResource(id = R.string.login_pass_field),
                 password,
                 onPasswordChange
-            )
-            Spacer(modifier = Modifier.height(25.dp))
+            ) { }
             MyButton(
                 onLoginClick,
                 stringResource(id = R.string.login_button),
@@ -163,27 +164,26 @@ fun EmailField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
+    onNext: () -> Unit,
 ) {
     TextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = Modifier.width(310.dp),
+        modifier = Modifier.fillMaxWidth(),
         placeholder = {
             Text(
                 text = label,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.displaySmall,
                 color = MaterialTheme.colorScheme.onTertiary
             )
         },
         maxLines = 1,
         singleLine = true,
-        textStyle = TextStyle(
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 14.sp,
-            lineHeight = 15.sp
+        textStyle = MaterialTheme.typography.displaySmall,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next), // para modificar el teclado y se adapte al fieldEmail
+        keyboardActions = KeyboardActions(
+            onNext = { onNext() }
         ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), // para modificar el teclado y se adapte al fieldEmail
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
@@ -204,9 +204,11 @@ fun PasswordField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
+    onDone: () -> Unit,
 ) {
     var passwordStateVisibility by remember { mutableStateOf(false) }
     var showLastCharacter by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(value) {
         if (value.isNotEmpty()) {
@@ -219,23 +221,24 @@ fun PasswordField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = Modifier.width(310.dp),
+        modifier = Modifier.fillMaxWidth(),
         placeholder = {
             Text(
                 text = label,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.displaySmall,
                 color = MaterialTheme.colorScheme.onTertiary
             )
         },
         maxLines = 1,
         singleLine = true,
-        textStyle = TextStyle(
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 14.sp,
-            lineHeight = 15.sp
+        textStyle = MaterialTheme.typography.displaySmall,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done), // para modificar el teclado y se adapte al fieldEmail
+        keyboardActions = KeyboardActions(
+            onDone = {
+                focusManager.clearFocus()
+                onDone()
+            }
         ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), // para modificar el teclado y se adapte al fieldEmail
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,

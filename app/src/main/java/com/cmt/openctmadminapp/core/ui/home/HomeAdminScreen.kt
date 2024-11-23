@@ -17,26 +17,33 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
+import com.cmt.openctmadminapp.core.ui.form.CustomDialog
+import com.cmt.openctmadminapp.core.ui.form.FormDiagnostic
 import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 
 @Composable
 fun HomeAdminScreen(
     modifier: Modifier,
-    navigationController: NavHostController
+    navigationController: NavHostController,
+    onThemeChange: (Int) -> Unit = {},
+    onTypographyChange: (Typography) -> Unit,
+    onFirstLaunchComplete: () -> Unit,
 ) {
     val navigateToLogin = remember { Routes.LoginAdminScreen.route }
 
@@ -46,7 +53,12 @@ fun HomeAdminScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         LogoSection(Modifier.weight(1f))
-        InfoSection(Modifier.weight(1f)) { navigationController.navigate(navigateToLogin) }
+        InfoSection(Modifier.weight(1f), onNavigate = {
+            onFirstLaunchComplete()
+            navigationController.navigate(
+                navigateToLogin
+            )
+        }, onThemeChange = onThemeChange, onTypographyChange = onTypographyChange)
     }
 }
 
@@ -68,7 +80,14 @@ fun LogoSection(modifier: Modifier) {
 }
 
 @Composable
-fun InfoSection(modifier: Modifier, navigate: () -> Unit) {
+fun InfoSection(
+    modifier: Modifier,
+    onNavigate: () -> Unit,
+    onThemeChange: (Int) -> Unit = {},
+    onTypographyChange: (Typography) -> Unit,
+) {
+    var showDiagnostic by remember { mutableStateOf(false) }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -84,14 +103,28 @@ fun InfoSection(modifier: Modifier, navigate: () -> Unit) {
                 text = stringResource(id = R.string.home_description),
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                lineHeight = 20.sp,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(horizontal = 50.dp)
             )
             Spacer(modifier = Modifier.height(40.dp))
+
+            if (showDiagnostic) {
+                CustomDialog {
+                    FormDiagnostic(
+                        { responses ->
+                            responses.forEach { (question, answer) ->
+                                println("Pregunta $question, Respuesta: $answer")
+                            }
+                        },
+                        onThemeChange = onThemeChange,
+                        onTypographyChange = onTypographyChange,
+                        onNavigateToResearch = onNavigate
+                    )
+                }
+            }
+
             MyButton(
-                navigate,
+                { showDiagnostic = true },
                 stringResource(id = R.string.home_button),
                 Icons.Default.PlayArrow
             )

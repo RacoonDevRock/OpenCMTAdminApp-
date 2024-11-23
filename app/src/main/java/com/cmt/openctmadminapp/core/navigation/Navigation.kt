@@ -1,5 +1,6 @@
 package com.cmt.openctmadminapp.core.navigation
 
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
@@ -19,20 +20,38 @@ fun AppNavGraph(
     modifier: Modifier,
     navController: NavHostController,
     startDestination: String = Routes.HomeAdminScreen.route,
-    onThemeChange: (Int) -> Unit
+    onThemeChange: (Int) -> Unit,
+    onTypographyChange: (Typography) -> Unit,
+    onFirstLaunchComplete: () -> Unit,
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
-        addHomeRoute(modifier, navController)
-        addLoginRoute(modifier, navController,)
-        addResearchRoute(modifier, navController, onThemeChange)
-        addDetailIncidentRoute(modifier, navController, onThemeChange)
-        addReportRoute(modifier, navController, onThemeChange)
+        addHomeRoute(
+            modifier,
+            navController,
+            onThemeChange,
+            onTypographyChange,
+            onFirstLaunchComplete
+        )
+        addLoginRoute(modifier, navController)
+        addResearchRoute(modifier, navController, onThemeChange, onTypographyChange)
+        addDetailIncidentRoute(modifier, navController, onThemeChange, onTypographyChange)
+        addReportRoute(modifier, navController, onThemeChange, onTypographyChange)
     }
 }
 
-fun NavGraphBuilder.addHomeRoute(modifier: Modifier, navController: NavHostController) {
+fun NavGraphBuilder.addHomeRoute(
+    modifier: Modifier, navController: NavHostController,
+    onThemeChange: (Int) -> Unit,
+    onTypographyChange: (Typography) -> Unit,
+    onFirstLaunchComplete: () -> Unit,
+) {
     composable(Routes.HomeAdminScreen.route) {
-        HomeAdminScreen(modifier = modifier, navigationController = navController)
+        HomeAdminScreen(
+            modifier = modifier, navigationController = navController,
+            onThemeChange = onThemeChange,
+            onTypographyChange = onTypographyChange,
+            onFirstLaunchComplete = onFirstLaunchComplete
+        )
     }
 }
 
@@ -42,28 +61,56 @@ fun NavGraphBuilder.addLoginRoute(modifier: Modifier, navController: NavHostCont
     }
 }
 
-fun NavGraphBuilder.addResearchRoute(modifier: Modifier, navController: NavHostController, onThemeChange: (Int) -> Unit) {
+fun NavGraphBuilder.addResearchRoute(
+    modifier: Modifier, navController: NavHostController, onThemeChange: (Int) -> Unit,
+    onTypographyChange: (Typography) -> Unit,
+) {
     composable(Routes.ResearchAdminScreen.route) {
-        ResearchAdminScreen(modifier = modifier, navigationController = navController, onThemeChange = onThemeChange)
+        ResearchAdminScreen(
+            modifier = modifier,
+            navigationController = navController,
+            onThemeChange = onThemeChange,
+            onTypographyChange = onTypographyChange
+        )
     }
 }
 
-fun NavGraphBuilder.addDetailIncidentRoute(modifier: Modifier, navController: NavHostController, onThemeChange: (Int) -> Unit) {
+fun NavGraphBuilder.addDetailIncidentRoute(
+    modifier: Modifier,
+    navController: NavHostController,
+    onThemeChange: (Int) -> Unit,
+    onTypographyChange: (Typography) -> Unit,
+) {
     composable(
         route = "${Routes.DetailReportAdminScreen.route}/{nroSolicitud}",
         arguments = listOf(navArgument("nroSolicitud") { type = NavType.StringType })
     ) { backStackEntry ->
         val nroSolicitud = backStackEntry.arguments?.getString("nroSolicitud") ?: ""
-        DetailReportAdminScreen(modifier = modifier, navigationController = navController, nroSolicitud = nroSolicitud, onThemeChange = onThemeChange)
+        DetailReportAdminScreen(
+            modifier = modifier,
+            navigationController = navController,
+            nroSolicitud = nroSolicitud,
+            onThemeChange = onThemeChange,
+            onTypographyChange = onTypographyChange
+        )
     }
 }
 
-fun NavGraphBuilder.addReportRoute(modifier: Modifier, navController: NavHostController, onThemeChange: (Int) -> Unit) {
+fun NavGraphBuilder.addReportRoute(
+    modifier: Modifier, navController: NavHostController, onThemeChange: (Int) -> Unit,
+    onTypographyChange: (Typography) -> Unit,
+) {
     composable(
         route = "${Routes.TotalReportAdminScreen.route}/{nroSolicitud}",
         arguments = listOf(navArgument("nroSolicitud") { type = NavType.StringType })
     ) { backStackEntry ->
         val nroSolicitud = backStackEntry.arguments?.getString("nroSolicitud") ?: ""
-        TotalReportAdminScreen(modifier = modifier, navigationController = navController, nroSolicitud = nroSolicitud, onThemeChange = onThemeChange)
+        TotalReportAdminScreen(
+            modifier = modifier,
+            navigationController = navController,
+            nroSolicitud = nroSolicitud,
+            onThemeChange = onThemeChange,
+            onTypographyChange = onTypographyChange
+        )
     }
 }

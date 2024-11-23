@@ -60,7 +60,7 @@ object NetworkModule {
     @Singleton
     @Named("RetrofitWithAuth")
     fun provideRetrofitWithAuth(@Named("AuthOkHttpClient") okHttpClient: OkHttpClient): Retrofit {
-        return Retrofit.Builder().baseUrl("http://<my_ip>:8081/")
+        return Retrofit.Builder().baseUrl("http://ec2-3-139-54-49.us-east-2.compute.amazonaws.com:8081/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create()).build()
     }
@@ -70,7 +70,7 @@ object NetworkModule {
     @Named("RetrofitNoAuth")
     fun provideRetrofitNoAuth(@Named("NoAuthOkHttpClient") noAuthOkHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://<my_ip>:8081/")
+            .baseUrl("http://ec2-3-139-54-49.us-east-2.compute.amazonaws.com:8081/")
             .client(noAuthOkHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
