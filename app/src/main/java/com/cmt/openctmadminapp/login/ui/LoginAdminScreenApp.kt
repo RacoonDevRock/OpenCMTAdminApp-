@@ -95,6 +95,12 @@ fun LoginAdminScreen(
                     navigationController.navigate(Routes.ResearchAdminScreen.route)
                 }
             }
+            is LoginState.ValidationError -> {
+                LaunchedEffect(state.message) {
+                    toast?.cancel()
+                    toast = Toast.makeText(context, state.message, Toast.LENGTH_SHORT).apply { show() }
+                }
+            }
             is LoginState.Error -> {
                 LaunchedEffect(state.message) {
                     toast?.cancel()
