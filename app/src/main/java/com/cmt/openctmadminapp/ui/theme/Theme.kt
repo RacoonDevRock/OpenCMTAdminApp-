@@ -20,11 +20,11 @@ val colorButtonDark = Color(0xFF252525)
 val colorButtonLight= Color(0xFF848688)
 
 // COLOR TEXT BUTTON DISABLED
-val colorTextButtonDisableDark = Color(0xFFAFB1B3)
+val colorTextButtonDisableDark = Color(0xFF959799)
 val colorTextButtonDisableLight = Color(0xFFCACACA)
 
 // COLOR BUTTON DISABLED
-val colorButtonDisableDark = Color(0xFF444444)
+val colorButtonDisableDark = Color(0xFF555555)
 val colorButtonDisableLight= Color(0xFFAFB1B3)
 
 // COLOR ICON
