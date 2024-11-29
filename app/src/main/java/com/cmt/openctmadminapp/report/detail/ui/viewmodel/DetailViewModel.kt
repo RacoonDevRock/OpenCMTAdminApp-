@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.cmt.openctmadminapp.report.detail.data.DetailRepository
 import com.cmt.openctmadminapp.report.detail.data.network.response.MessageResponse
 import com.cmt.openctmadminapp.report.detail.data.network.response.SolicitudDTODetail
-import com.cmt.openctmadminapp.research.ui.viewmodel.SolicitudUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +18,6 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(private val detailRepository: DetailRepository) :
     ViewModel() {
-    private val _uiState = MutableStateFlow(SolicitudUIState())
-    val uiState: StateFlow<SolicitudUIState> = _uiState
 
     private val _solicitudDetail = MutableStateFlow<SolicitudDTODetail?>(null)
     val solicitudDetail: StateFlow<SolicitudDTODetail?> = _solicitudDetail

@@ -58,4 +58,5 @@
     <!-- Report Options -->
     <string name="confirm_button">Confirmar</string>
     <string name="reject_button">Cancelar</string>
+    <string name="error_message">No se encontraron solicitudes con los filtros seleccionados</string>
 </resources>

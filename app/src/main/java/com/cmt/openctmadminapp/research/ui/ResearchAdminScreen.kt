@@ -12,10 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -31,35 +28,38 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.Typography
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.cmt.openctmadminapp.R
 import com.cmt.openctmadminapp.core.navigation.Routes
 import com.cmt.openctmadminapp.core.ui.header.FAB
 import com.cmt.openctmadminapp.core.ui.header.HeaderSection
 import com.cmt.openctmadminapp.core.ui.shared.buttonNavigate.MyButton
 import com.cmt.openctmadminapp.core.ui.shared.loading.LoadingScreen
+import com.cmt.openctmadminapp.research.data.network.response.SolicitudDTOResponse
 import com.cmt.openctmadminapp.research.ui.viewmodel.SearchViewModel
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
 fun ResearchAdminScreen(
@@ -69,10 +69,8 @@ fun ResearchAdminScreen(
     onTypographyChange: (Typography) -> Unit,
     searchViewModel: SearchViewModel = hiltViewModel(),
 ) {
-    val uiState by searchViewModel.uiState.collectAsState()
     var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
-    val listState = rememberLazyListState()
+    val requests = searchViewModel.requestsFlow.collectAsLazyPagingItems()
 
     LaunchedEffect(Unit) {
         searchViewModel.loadAllSolicitudes()
@@ -87,96 +85,72 @@ fun ResearchAdminScreen(
             navigationController
         )
 
-        Column(
+        LazyColumn(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .constrainAs(list) {
                     top.linkTo(header.bottom)
                     bottom.linkTo(button.top)
                     height = Dimension.fillToConstraints
-                },
-            verticalArrangement = Arrangement.Center
+                }
+                .padding(bottom = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
-            SwipeRefresh(
-                state = swipeRefreshState,
-                onRefresh = { searchViewModel.loadAllSolicitudes() }
-            ) {
-                when {
-                    uiState.isLoading && !swipeRefreshState.isRefreshing -> {
-                        LoadingScreen()
+            when {
+                requests.loadState.refresh is LoadState.NotLoading && requests.itemCount == 0 -> {
+                    item {
+                        NoResultsMessage()
                     }
+                }
 
-                    uiState.errorMessage != null -> {
-                        uiState.errorMessage?.let { errorMessage ->
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = errorMessage,
-                                    color = Color.Red,
-                                    modifier = Modifier.align(Alignment.Center),
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
-
-                    uiState.solicitudes.isEmpty() -> { // Mostrar mensaje cuando no hay datos
-                        Box(
-                            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "No se encontraron incidentes",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-
-                    else -> {
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            items(uiState.solicitudes, key = { it.nroSolicitud }) { solicitud ->
-                                ReportBox(
-                                    {
-                                        navigationController.navigate(
-                                            Routes.DetailReportAdminScreen.createRoute(
-                                                solicitud.nroSolicitud
-                                            )
+                else -> {
+                    items(requests.itemCount) { index ->
+                        val request = requests[index]
+                        if (request != null) {
+                            ReportBox(
+                                {
+                                    navigationController.navigate(
+                                        Routes.DetailReportAdminScreen.createRoute(
+                                            request.nroSolicitud
                                         )
-                                    },
-                                    solicitud.nroSolicitud,
-                                    solicitud.fecha,
-                                    solicitud.hora,
-                                    solicitud.estado
-                                )
-                            }
-                        }
-
-                        LaunchedEffect(listState) {
-                            snapshotFlow {
-                                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                            }.collect { lastVisibleItem ->
-                                lastVisibleItem?.let {
-                                    if (it == uiState.solicitudes.size - 1 && !uiState.isLoading) {
-                                        searchViewModel.loadNextPage()
-                                    }
-                                }
-                            }
+                                    )
+                                },
+                                request.nroSolicitud,
+                                request.fecha,
+                                request.hora,
+                                request.estado
+                            )
                         }
                     }
                 }
             }
+
+            when (requests.loadState.append) {
+                is LoadState.Loading -> {
+                    item {
+                        LoadingScreen()
+                    }
+                }
+
+                is LoadState.Error -> {
+                    item {
+                        val error = (requests.loadState.append as LoadState.Error).error
+                        Text(
+                            text = "Error al cargar más elementos: ${error.localizedMessage ?: "Desconocido"}",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                else -> {}
+            }
         }
 
-        Spacer(modifier = Modifier.height(80.dp))
 
         FAB(
             isDarkTheme = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES,
@@ -203,6 +177,25 @@ fun ResearchAdminScreen(
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
+        )
+    }
+}
+
+
+@Composable
+fun NoResultsMessage() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = stringResource(id = R.string.error_message),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.Center)
         )
     }
 }
@@ -249,14 +242,16 @@ fun BottomSheetContent(viewModel: SearchViewModel, onDismiss: () -> Unit) {
 
         MyButton(
             {
-                viewModel.loadAllSolicitudes()
+                viewModel.applyFilters(
+                    estadoStr = viewModel.estadoStr,
+                    periodoStr = viewModel.periodoStr
+                )
                 onDismiss()
             },
             stringResource(id = R.string.filter_button),
             Icons.Default.Search
         )
     }
-    Spacer(modifier = Modifier.width(56.dp))
 }
 
 @Composable
@@ -372,9 +367,9 @@ fun ReportBox(
 ) {
 
     val statusColor = when (statusIncident) {
-        "ACEPTADO" -> Color(0xFF32A91D)
-        "RECHAZADO" -> Color(0xFFFF9F19)
-        "PENDIENTE" -> Color(0xFFD71414)
+        "ACEPTADO" -> MaterialTheme.colorScheme.onSurface
+        "RECHAZADO" -> MaterialTheme.colorScheme.surfaceVariant
+        "PENDIENTE" -> MaterialTheme.colorScheme.primary
         else -> MaterialTheme.colorScheme.primary
     }
 
@@ -404,36 +399,37 @@ fun ReportBox(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
-                Row {
-                    Text(
-                        text = dateIncident,
-                        style = MaterialTheme.typography.displaySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = hourIncident,
-                        style = MaterialTheme.typography.displaySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                Text(
+                    text = dateIncident,
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = statusIncident,
-                style = MaterialTheme.typography.displaySmall,
-                color = statusColor,
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = statusIncident,
+                    style = MaterialTheme.typography.displaySmall,
+                    color = statusColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = hourIncident,
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

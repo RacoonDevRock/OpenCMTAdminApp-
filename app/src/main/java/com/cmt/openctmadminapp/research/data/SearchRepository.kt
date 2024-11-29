@@ -1,8 +1,6 @@
 package com.cmt.openctmadminapp.research.data
 
 import com.cmt.openctmadminapp.research.data.network.SearchClient
-import com.cmt.openctmadminapp.research.data.network.response.SolicitudDTOResponse
-import retrofit2.Response
 import javax.inject.Inject
 
 class SearchRepository @Inject constructor(private val searchClient: SearchClient) {
@@ -12,13 +10,5 @@ class SearchRepository @Inject constructor(private val searchClient: SearchClien
         periodoStr: String?,
         page: Int = 0,
         size: Int = 10,
-    ): Response<List<SolicitudDTOResponse>> {
-        val response = searchClient.searchIncidents(estadoStr, periodoStr, page, size)
-        return if (response.isSuccessful) {
-            val solicitudes = response.body()?.embedded?.solicitudDTOPreviewList ?: emptyList()
-            Response.success(solicitudes)
-        } else {
-            Response.error(response.code(), response.errorBody()!!)
-        }
-    }
+    ) = searchClient.searchIncidents(estadoStr, periodoStr, page, size)
 }

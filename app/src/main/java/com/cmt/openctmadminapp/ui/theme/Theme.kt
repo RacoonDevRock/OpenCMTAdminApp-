@@ -46,6 +46,16 @@ val backgroundFoldLight = Color(0xFFD9D9D9)
 val containerDataDark = Color(0xFF6C6C6C)
 val containerDataLight = Color(0xFFFFFFFF)
 
+// STATUS SOLICITUDES LIGHT
+val statusRequestLightAceptado = Color(0xFF32A91D)
+val statusRequestLightRechazado = Color(0xFFFF9F19)
+val statusRequestLightPendiente = Color(0xFFD71414)
+
+// STATUS SOLICITUDES DARK
+val statusRequestDarkAceptado = Color(0xFF4CAF50)
+val statusRequestDarkRechazado = Color(0xFFFFC107)
+val statusRequestDarkPendiente = Color(0xFFF44336)
+
 private val DarkColorScheme = darkColorScheme(
     primary = colorTextDark, // texto
     background = backgroundDark, // fondo
@@ -57,7 +67,10 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = colorIconDark, // icono
     onTertiary = colorTextInField, // text-field
     onTertiaryContainer = colorTextInField, // cursor-field
-    surfaceContainer = containerDataDark
+    surfaceContainer = containerDataDark,
+    onSurface = statusRequestDarkAceptado, // estado aceptado
+    surfaceVariant = statusRequestDarkRechazado, // estado rechazado
+    onSurfaceVariant = statusRequestDarkPendiente, // estado pendiente
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -71,7 +84,11 @@ private val LightColorScheme = lightColorScheme(
     tertiary = colorIconLight, // icono
     onTertiary = colorTextInField, // text-field
     onTertiaryContainer = colorTextInField,
-    surfaceContainer = containerDataLight
+    surfaceContainer = containerDataLight,
+    onSurface = statusRequestLightAceptado, // estado aceptado
+    surfaceVariant = statusRequestLightRechazado, // estado rechazado
+    onSurfaceVariant = statusRequestLightPendiente, // estado pendiente
+
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
