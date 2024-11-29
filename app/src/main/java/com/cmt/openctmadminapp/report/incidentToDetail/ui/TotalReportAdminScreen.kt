@@ -81,7 +81,7 @@ fun TotalReportAdminScreen(
             } else {
                 incidentDetail?.let { detail ->
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.TopCenter
                     ) {
                         DetailReport(modifier, detail)
@@ -104,7 +104,7 @@ fun TotalReportAdminScreen(
 fun DetailReport(modifier: Modifier = Modifier, incidenteDTODetail: IncidenteDTODetail) {
     Box(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(horizontal = 25.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
