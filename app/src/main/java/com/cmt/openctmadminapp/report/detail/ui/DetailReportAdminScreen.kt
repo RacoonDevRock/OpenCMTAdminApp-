@@ -156,6 +156,13 @@ fun ReportBoxBottom(
     val solicitudDTODetail by detailViewModel.solicitudDetail.collectAsState()
     val isPending = solicitudDTODetail?.estado == "PENDIENTE"
 
+    val statusColor = when (solicitudDTODetail?.estado) {
+        "ACEPTADO" -> MaterialTheme.colorScheme.onSurface
+        "RECHAZADO" -> MaterialTheme.colorScheme.surfaceVariant
+        "PENDIENTE" -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.primary
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -169,42 +176,66 @@ fun ReportBoxBottom(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = stringResource(id = R.string.approve_report_description),
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(modifier = Modifier.height(25.dp))
-
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                // aprueba solicitud
-                MyButtonReport(
-                    enable = isPending,
-                    {
-                        detailViewModel.approveSolicitud(nroSolicitud) { onNavigateBack() }
-                        Toast.makeText(context, "Solicitud aprobada", Toast.LENGTH_SHORT).show()
-                        onNavigateBack()
-                    },
-                    textButton = stringResource(id = R.string.attend_report_button),
-                    myIconButton = Icons.Default.Check
+            if (isPending) {
+                Text(
+                    text = stringResource(id = R.string.approve_report_description),
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
                 )
-                Spacer(modifier = Modifier.width(5.dp))
-                //rechazasolicitud
-                MyButtonReport(
-                    enable = isPending,
-                    {
-                        detailViewModel.rejectSolicitud(nroSolicitud) { onNavigateBack() }
-                        Toast.makeText(context, "Solicitud rechazada", Toast.LENGTH_SHORT).show()
-                        onNavigateBack()
-                    },
-                    textButton = stringResource(id = R.string.reject_report_button),
-                    myIconButton = Icons.Default.Clear
+
+                Spacer(modifier = Modifier.height(25.dp))
+
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    // aprueba solicitud
+                    MyButtonReport(
+                        navigate = {
+                            detailViewModel.approveSolicitud(nroSolicitud) { onNavigateBack() }
+                            Toast.makeText(context, "Solicitud aprobada", Toast.LENGTH_SHORT).show()
+                            onNavigateBack()
+                        },
+                        textButton = stringResource(id = R.string.attend_report_button),
+                        myIconButton = Icons.Default.Check
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    //rechazasolicitud
+                    MyButtonReport(
+                        navigate = {
+                            detailViewModel.rejectSolicitud(nroSolicitud) { onNavigateBack() }
+                            Toast.makeText(context, "Solicitud rechazada", Toast.LENGTH_SHORT)
+                                .show()
+                            onNavigateBack()
+                        },
+                        textButton = stringResource(id = R.string.reject_report_button),
+                        myIconButton = Icons.Default.Clear
+                    )
+
+                }
+            } else {
+                Text(
+                    text = "Solicitud resuelta",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(bottom = 6.dp)
                 )
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    Text(
+                        text = "Estado:",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    solicitudDTODetail?.let {
+                        Text(
+                            text = it.estado,
+                            color = statusColor,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+                }
             }
         }
     }
@@ -212,7 +243,7 @@ fun ReportBoxBottom(
 
 @Composable
 fun MyButtonReport(
-    enable: Boolean,
+    enable: Boolean = true,
     navigate: () -> Unit,
     textButton: String,
     myIconButton: ImageVector,
